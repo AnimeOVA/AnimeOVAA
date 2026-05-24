@@ -460,7 +460,7 @@
             if (user) {
                 currentUser = user;
 
-                // نظام الحظر المطور الصارم (التحقق من الحظر الدائم والمؤقت التلقائي)
+                // نظام الحظر المطور الصارم
                 database.ref('banned_users/' + user.uid).on('value', (banSnap) => {
                     if (banSnap.exists()) {
                         const banData = banSnap.val();
@@ -475,7 +475,6 @@
                                 alert(`🚫 عذراً، حسابك محظور مؤقتاً! الوقت المتبقي لانتهاء العقوبة: ${hoursLeft} ساعة تقريباً.`);
                                 auth.signOut().then(() => { location.reload(); });
                             } else {
-                                // انتهاء مدة الباند المؤقت -> رفع الحظر تلقائياً
                                 database.ref('banned_users/' + user.uid).remove();
                             }
                         }
@@ -486,7 +485,6 @@
                 document.getElementById('app-screen').classList.add('active');
                 document.getElementById('user-display-name').innerText = user.displayName || user.email.split('@')[0];
                 
-                // الاستماع لبيانات حساب المستخدم
                 database.ref('users/' + user.uid).on('value', (snap) => {
                     let uData = snap.val() || {};
                     if (!uData.rank) uData.rank = "صاعد";
@@ -505,7 +503,6 @@
                     pNeo.innerHTML = `⚡ رصيدك: ${uData.neo} نيو`;
                     document.getElementById('shop-neo-balance').innerText = uData.neo;
 
-                    // إظهار لوحة التحكم للأدمن
                     const clearBtn = document.getElementById('admin-clear-chat');
                     if (clearBtn) {
                         clearBtn.style.display = (window.currentUserIsAdmin && activeRoom === 'global_chat') ? 'block' : 'none';
@@ -531,7 +528,7 @@
             auth.signOut().then(() => { location.reload(); });
         }
 
-        // --- نظام مؤشر إشارة الكتابة المباشرة المتزامنة (Typing Tracker) ---
+        // --- نظام مؤشر إشارة الكتابة ---
         function setupTypingTracker() {
             const msgField = document.getElementById('message-field');
             msgField.addEventListener('input', () => {
@@ -544,7 +541,7 @@
                 clearTimeout(typingTimeout);
                 typingTimeout = setTimeout(() => {
                     if (currentUser) database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
-                }, 2000); // إزالة الحالة بعد ثانيتين من التوقف عن الضغط
+                }, 2000); 
             });
         }
 
@@ -574,7 +571,7 @@
             });
         }
 
-        // --- إدارة الألعاب والمزامنة التامة للمكافآت ---
+        // --- إدارة الألعاب ---
         function setupGameZone(roomId) {
             if (currentGameListener) currentGameListener.off();
             const container = document.getElementById('game-zone-container');
@@ -832,7 +829,7 @@
             });
         }
 
-        // --- إدارة متجر الرتب التفاعلي ---
+        // --- المتجر ---
         function openShop() {
             playSFX('click');
             document.getElementById('shop-modal').classList.add('active');
@@ -863,7 +860,6 @@
             ];
             
             ranksList.forEach(item => {
-                // منع ظهور رتبة الإمبراطور لغير الحاصلين عليها بالكود
                 if (item.id === "الامبراطور المطلق" && (!window.currentUserData || !window.currentUserData.unlockedEmperor)) return;
 
                 const div = document.createElement('div'); div.className = 'shop-item';
@@ -891,7 +887,6 @@
                 if (currentData.neo === undefined) currentData.neo = 0;
                 if (currentData.rank === rankName) return; 
 
-                // إذا كانت رتبة الإمبراطور مفتوحة بالكود، تخطي سعر الـ نيو
                 if (rankName === "الامبراطور المطلق" && currentData.unlockedEmperor) {
                     currentData.rank = rankName;
                     return currentData;
@@ -912,7 +907,7 @@
             });
         }
 
-        // --- التحكم بنافذة الأكواد السرية ---
+        // --- نظام الأكواد السرية ---
         function openRedeemModal() {
             playSFX('click');
             document.getElementById('redeem-modal').classList.add('active');
@@ -933,7 +928,6 @@
 
             playSFX('click');
 
-            // 1. الكود اليومي القديم
             if (code === "GG90ROMA") {
                 const todayStr = new Date().toISOString().split('T')[0]; 
                 const lastUsedDate = window.currentUserData ? window.currentUserData.lastDailyCodeDate : null;
@@ -952,13 +946,11 @@
                     if (committed) { playSFX('join'); alert("🎉 مبارك! تم شحن 1400 نيو فوراً."); closeRedeemModal(); }
                 });
             } 
-            // 2. كود صلاحيات المطور والأدمن
             else if (code === "GG14ROMASS") {
                 database.ref('users/' + currentUser.uid + '/isAdmin').set(true).then(() => {
                     playSFX('join'); alert("👑 تم منحك صلاحيات الأدمن السري ولائحة الحظر المتطورة!"); closeRedeemModal();
                 });
             } 
-            // 3. الكود الجديد المذهل: رتبة الامبراطور المطلق المجانية الفورية
             else if (code === "HH00GG1000") {
                 if (confirm("🔥 كود مذهل مكتشف! هل تريد تفعيل رتبة [الامبراطور المطلق] الحمراء المتوهجة ذات المؤثرات البصرية الأسطورية مجاناً الآن؟")) {
                     database.ref('users/' + currentUser.uid).update({
@@ -981,7 +973,7 @@
             }
         }
 
-        // --- نظام الحظر المطور الصارم وتدابير المطور العياذ بها ---
+        // --- نظام الحظر والإشراف ---
         function banUserAccount(targetUid, targetUsername) {
             if (!window.currentUserIsAdmin) return;
             playSFX('click');
@@ -1037,10 +1029,10 @@
 
         function manualUnbanPrompt() {
             if (!window.currentUserIsAdmin) return;
-            const targetUid = prompt("قم بإدخال الـ ID (UID) الخاص بالمستند لفك حظره الفوري:");
+            const targetUid = prompt("قم بإدخال الـ ID (UID) الخاص بالمستخدم لفك حظره الفوري:");
             if (!targetUid) return;
             database.ref('banned_users/' + targetUid).remove().then(() => {
-                alert("✅ تم رفع فك الحظر عن الحساب المدخل بنجاح تام!");
+                alert("✅ تم فك الحظر عن الحساب المدخل بنجاح تام!");
             }).catch(() => alert("فشل الإجراء، يرجى التحقق من القيمة."));
         }
 
@@ -1050,28 +1042,53 @@
                 playSFX('game_end');
                 database.ref('rooms/global_chat').remove().then(() => {
                     alert("🧹 تم تفريغ ومسح الشات العام بنجاح!");
-                    document.getElementById('messages-box').innerHTML = '';
                 });
             }
         }
 
-        // --- دوال الشات والرسائل المتزامنة ---
-        function listenToRoomMessages(roomId) {
-            const box = document.getElementById('messages-box'); box.innerHTML = '';
-            database.ref('rooms/' + roomId).off();
-            database.ref('rooms/' + roomId).on('child_added', function(snapshot) {
-                const msg = snapshot.val();
-                appendBubble(msg);
-                if (msg.timestamp && msg.timestamp > Date.now() - 3000) {
-                    if (msg.userId !== currentUser.uid) playSFX('message');
+        // --- دوال الطرد الخاصة بالغرف ---
+        function kickMemberFromRoom(roomId, memberUid) {
+            if (!confirm("هل أنت متأكد من طرد هذا العضو من غرفتك الخاصة؟")) return;
+            // التحقق من صلاحيات المشرف
+            database.ref(`rooms_meta/${roomId}/members/${currentUser.uid}/role`).once('value', snap => {
+                if(snap.val() === 'admin' || window.currentUserIsAdmin) {
+                    database.ref(`rooms_meta/${roomId}/members/${memberUid}`).remove().then(() => {
+                        alert("تم طرد العضو بنجاح 🔨");
+                    });
+                } else {
+                    alert("❌ ليس لديك صلاحيات المشرف في هذه الغرفة لطرد الأعضاء!");
                 }
             });
         }
 
-        function appendBubble(msg) {
+        // --- دوال الشات المعدلة (حذف الرسائل للجميع) ---
+        function listenToRoomMessages(roomId) {
+            const box = document.getElementById('messages-box'); 
+            box.innerHTML = '';
+            database.ref('rooms/' + roomId).off(); 
+
+            // الاستماع للرسائل الجديدة
+            database.ref('rooms/' + roomId).on('child_added', function(snapshot) {
+                const msg = snapshot.val();
+                const msgKey = snapshot.key; 
+                appendBubble(msg, msgKey);
+                if (msg.timestamp && msg.timestamp > Date.now() - 3000) {
+                    if (msg.userId !== currentUser.uid) playSFX('message');
+                }
+            });
+
+            // الاستماع للرسائل المحذوفة (ليتم مسحها عند الجميع)
+            database.ref('rooms/' + roomId).on('child_removed', function(snapshot) {
+                const msgElement = document.getElementById('msg-' + snapshot.key);
+                if (msgElement) msgElement.remove();
+            });
+        }
+
+        function appendBubble(msg, msgKey) {
             const box = document.getElementById('messages-box');
             const isMe = msg.userId === currentUser.uid; 
             const bubble = document.createElement('div');
+            bubble.id = 'msg-' + msgKey; 
             bubble.className = `message-bubble ${isMe ? 'msg-sent' : 'msg-received'}`;
             
             let contentHTML = msg.body;
@@ -1087,13 +1104,19 @@
 
             const rTag = getRankHTML(msg.rank || "صاعد");
             
-            let banBtnHTML = "";
+            let actionBtns = "";
+            // زر الباند العام للأدمن فقط
             if (window.currentUserIsAdmin && !isMe) {
-                banBtnHTML = `<button onclick="banUserAccount('${msg.userId}', '${msg.sender}')" style="background:none; border:none; color:var(--accent-neon); margin-right:8px; cursor:pointer;" title="لوحة العقوبات والحظر"><i class="fas fa-gavel"></i></button>`;
+                actionBtns += `<button onclick="banUserAccount('${msg.userId}', '${msg.sender}')" style="background:none; border:none; color:var(--accent-neon); margin-right:8px; cursor:pointer;" title="لوحة العقوبات والحظر"><i class="fas fa-gavel"></i></button>`;
+            }
+            
+            // زر الطرد الخاص بالغرف المخصصة (يظهر للمشرفين داخل الغرفة المخصصة فقط)
+            if (activeRoom !== 'global_chat' && !isMe) {
+                actionBtns += `<button onclick="kickMemberFromRoom('${activeRoom}', '${msg.userId}')" style="background:none; border:none; color:orange; margin-right:8px; cursor:pointer;" title="طرد من الغرفة"><i class="fas fa-sign-out-alt"></i></button>`;
             }
 
             bubble.innerHTML = `
-                <div class="message-meta">${rTag} <span>${isMe ? 'أنت' : msg.sender}</span> ${banBtnHTML} <small style="font-size:0.65rem; opacity:0.5; cursor:pointer;" onclick="navigator.clipboard.writeText('${msg.userId}'); alert('تم نسخ الـ ID للمستخدم!')">ID 📋</small></div>
+                <div class="message-meta">${rTag} <span>${isMe ? 'أنت' : msg.sender}</span> ${actionBtns} <small style="font-size:0.65rem; opacity:0.5; cursor:pointer;" onclick="navigator.clipboard.writeText('${msg.userId}'); alert('تم نسخ الـ ID للمستخدم!')">ID 📋</small></div>
                 <div class="message-content">${contentHTML}</div>
             `;
             box.appendChild(bubble); box.scrollTop = box.scrollHeight;
@@ -1143,35 +1166,63 @@
             field.value += emoji; field.focus();
         }
 
+        // --- نظام الغرف المخصصة برقم من 6 أرقام ---
         function createRoom() {
-            playSFX('click'); const id = 'Room_' + Math.floor(1000 + Math.random() * 9000);
-            localStorage.setItem('joined_private_' + id, 'true');
-            alert("تم إنشاء غرفة خاصة! الـ ID: " + id);
-            database.ref('rooms_list').push({ id: id, creator: currentUser.uid });
-            switchRoom(id);
+            playSFX('click'); 
+            const id = Math.floor(100000 + Math.random() * 900000).toString(); 
+            
+            database.ref('rooms_meta/' + id).set({
+                creator: currentUser.uid,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                members: {
+                    [currentUser.uid]: { role: 'admin' }
+                }
+            }).then(() => {
+                alert("تم إنشاء غرفة خاصة! الـ ID: " + id);
+                switchRoom(id);
+            });
         }
 
         function joinRoom() {
-            playSFX('click'); const id = prompt("أدخل الـ ID الخاص بالغرفة الخاصة:");
-            if(id) { localStorage.setItem('joined_private_' + id, 'true'); playSFX('join'); switchRoom(id); }
+            playSFX('click'); 
+            const id = prompt("أدخل الـ ID الخاص بالغرفة (6 أرقام):");
+            if (!id) return;
+
+            database.ref('rooms_meta/' + id).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    database.ref('rooms_meta/' + id + '/members/' + currentUser.uid).set({ role: 'member' }).then(() => {
+                        playSFX('join'); 
+                        switchRoom(id);
+                    });
+                } else {
+                    alert("❌ هذه الغرفة غير موجودة! تأكد من الـ ID.");
+                }
+            });
         }
 
+        // --- الاستماع للغرف وعرضها لمن هم أعضاء فقط ---
         function listenToGlobalRooms() {
-            database.ref('rooms_list').on('child_added', function(snapshot) {
-                const roomData = snapshot.val();
-                if (roomData && roomData.id && roomData.id !== 'global_chat') {
-                    const isCreator = roomData.creator === currentUser.uid;
-                    const hasAccess = localStorage.getItem('joined_private_' + roomData.id) === 'true';
+            database.ref('rooms_meta').on('value', function(snapshot) {
+                const rooms = snapshot.val() || {};
+                const list = document.getElementById('rooms-list');
+                
+                list.innerHTML = `
+                    <div class="list-item ${activeRoom === 'global_chat' ? 'active' : ''}" id="room-item-global_chat" onclick="switchRoom('global_chat', this)">
+                        <i class="fas fa-globe" style="color: var(--accent-neon);"></i>
+                        <span>الدردشة العالمية</span>
+                    </div>
+                `;
 
-                    if (isCreator || hasAccess) {
-                        if (!document.getElementById(`room-item-${roomData.id}`)) {
-                            const list = document.getElementById('rooms-list');
-                            const item = document.createElement('div'); item.className = "list-item";
-                            item.id = `room-item-${roomData.id}`;
-                            item.innerHTML = `<i class="fas fa-hashtag" style="color:var(--accent-blue);"></i> <span>غرفة خاصة: ${roomData.id}</span>`;
-                            item.onclick = function() { switchRoom(roomData.id, item); };
-                            list.appendChild(item);
-                        }
+                for (let roomId in rooms) {
+                    const roomData = rooms[roomId];
+                    
+                    if (roomData.members && roomData.members[currentUser.uid]) {
+                        const item = document.createElement('div'); 
+                        item.className = `list-item ${activeRoom === roomId ? 'active' : ''}`;
+                        item.id = `room-item-${roomId}`;
+                        item.innerHTML = `<i class="fas fa-lock" style="color:var(--accent-blue);"></i> <span>غرفة: ${roomId}</span>`;
+                        item.onclick = function() { switchRoom(roomId, item); };
+                        list.appendChild(item);
                     }
                 }
             });
