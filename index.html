@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANIME OVA! - المتجر والاقتصاد الرقمي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>MineChat Hub - سيرفر المحادثة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -13,194 +13,222 @@
 
     <style>
         :root {
-            --bg-main: #0a0a12;
-            --bg-panel: #121225;
-            --bg-item: #1c1c3a;
-            --accent-neon: #ff0055;
-            --accent-blue: #00d2ff;
-            --text-main: #ffffff;
-            --text-muted: #8b8ba7;
-            --shadow-neon: 0 0 15px rgba(255, 0, 85, 0.6);
-            --neo-glow: 0 0 12px #00d2ff;
+            /* ألوان واجهة ماين كرافت الكلاسيكية */
+            --mc-bg-dirt: #5c3b21;
+            --mc-ui-base: #c6c6c6;
+            --mc-ui-dark: #555555;
+            --mc-ui-light: #ffffff;
+            --mc-border-hover: #ffffff;
+            --mc-text-dark: #3f3f3f;
+            --mc-text-light: #ffffff;
+            --mc-chat-bg: rgba(0, 0, 0, 0.5);
+            --mc-diamond: #55ffff;
+            --mc-gold: #ffaa00;
+            --mc-red: #ff5555;
+            --mc-green: #55ff55;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        body { 
+            background-color: #1d1d1d; 
+            background-image: 
+                linear-gradient(45deg, #4b301a 25%, transparent 25%, transparent 75%, #4b301a 75%, #4b301a),
+                linear-gradient(45deg, #4b301a 25%, transparent 25%, transparent 75%, #4b301a 75%, #4b301a);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+            color: var(--mc-text-light); 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .pixel-font { font-family: 'Pixelify Sans', 'Cairo', sans-serif; }
 
         .screen { display: none; width: 100%; height: 100%; }
         .screen.active { display: flex; }
 
-        /* شاشة تسجيل الدخول */
-        #auth-screen {
-            background: radial-gradient(circle at center, var(--bg-item), var(--bg-main));
-            flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+        /* ستايل أزرار ماين كرافت */
+        .mc-btn {
+            background-color: #7b7b7b;
+            border: 2px solid;
+            border-color: var(--mc-ui-light) var(--mc-ui-dark) var(--mc-ui-dark) var(--mc-ui-light);
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 2px 2px 0px #383838;
+            cursor: pointer;
+            transition: 0.1s;
         }
-        .auth-container {
-            background: var(--bg-panel); width: 100%; max-width: 420px; padding: 35px 25px; border-radius: 24px;
-            border: 2px solid var(--accent-neon); box-shadow: var(--shadow-neon); text-align: center;
+        .mc-btn:hover { background-color: #8b8b8b; border-color: var(--mc-border-hover) var(--mc-ui-dark) var(--mc-ui-dark) var(--mc-border-hover); }
+        .mc-btn:active {
+            border-color: var(--mc-ui-dark) var(--mc-ui-light) var(--mc-ui-light) var(--mc-ui-dark);
+            background-color: #6b6b6b;
+            padding-top: 14px; padding-bottom: 10px;
         }
-        .auth-logo { font-size: 3.5rem; font-weight: 900; color: var(--accent-neon); text-shadow: var(--shadow-neon); margin-bottom: 5px; }
-        .auth-subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 25px; }
+        .mc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .mc-btn-action { background-color: #3e8528; border-color: #5cbf3c #1d4013 #1d4013 #5cbf3c; }
+        .mc-btn-action:hover { background-color: #4b9f31; }
+        
+        /* تعديل الزر الأحمر ليكون بارزاً وأكثر وضوحاً */
+        .mc-btn-danger { background-color: #c92a2a; border-color: #ff5555 #5c1010 #5c1010 #ff5555; color: white; text-shadow: 2px 2px 0px #3f0909; }
+        .mc-btn-danger:hover { background-color: #e03131; border-color: #ff7777 #7a1515 #7a1515 #ff7777; }
+
+        /* ستايل النوافذ */
+        .mc-panel {
+            background-color: var(--mc-ui-base);
+            border: 4px solid;
+            border-color: var(--mc-ui-light) var(--mc-ui-dark) var(--mc-ui-dark) var(--mc-ui-light);
+            color: var(--mc-text-dark);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        #auth-screen { flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .auth-container { width: 100%; max-width: 420px; padding: 25px; text-align: center; }
+        .auth-logo { font-size: 2.8rem; font-weight: 900; color: #ffeb3b; text-shadow: 3px 3px 0 #3e3e3e; margin-bottom: 5px; }
+        .auth-subtitle { color: var(--mc-text-dark); font-weight: bold; margin-bottom: 25px; }
         
         .input-group { position: relative; margin-bottom: 15px; }
-        .input-group i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--accent-blue); }
         .input-group input {
-            width: 100%; padding: 15px 45px 15px 15px; background: var(--bg-main); border: 1px solid var(--bg-item);
-            border-radius: 12px; color: white; font-size: 1.1rem; outline: none; transition: 0.3s;
+            width: 100%; padding: 12px; background: #000; border: 2px solid #383838;
+            color: #fff; font-size: 1.1rem; outline: none; border-radius: 0;
+            border-top-color: #222; border-left-color: #222; border-bottom-color: #666; border-right-color: #666;
         }
-        .input-group input:focus { border-color: var(--accent-neon); }
-        
-        .btn-action {
-            width: 100%; padding: 15px; background: linear-gradient(45deg, var(--accent-neon), #b3003b);
-            color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;
-        }
-        .btn-action:hover { transform: translateY(-2px); box-shadow: var(--shadow-neon); }
-        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+        .input-group input:focus { border-color: var(--mc-ui-light); }
+        .auth-switch { margin-top: 15px; color: #0000aa; cursor: pointer; font-weight: bold; text-decoration: underline; }
 
-        .auth-switch { margin-top: 15px; color: var(--accent-blue); cursor: pointer; font-size: 0.95rem; text-decoration: underline; }
-
-        /* التطبيق الرئيسي */
         #app-screen { flex-direction: column; position: relative; }
         .app-header {
-            height: 70px; background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; border-bottom: 2px solid var(--bg-item); z-index: 10;
+            height: 60px; background: rgba(0,0,0,0.8); display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; border-bottom: 3px solid #333; z-index: 10;
         }
-        .header-title { font-size: 1.8rem; font-weight: 900; color: var(--accent-neon); text-shadow: var(--shadow-neon); }
-        .menu-toggle { font-size: 1.5rem; color: white; cursor: pointer; background: none; border: none; }
+        .header-title { font-size: 1.5rem; font-weight: bold; color: #55ff55; text-shadow: 2px 2px 0px #000; }
+        .menu-toggle { font-size: 1.5rem; color: white; cursor: pointer; background: none; border: none; text-shadow: 2px 2px 0 #000; }
 
         .app-body { flex: 1; display: flex; position: relative; overflow: hidden; }
 
-        /* القائمة الجانبية */
+        /* تعديل القائمة الجانبية (Sidebar) لتدعم التمرير حتى لا تختفي الأزرار السفلية */
         .sidebar {
-            position: absolute; top: 0; bottom: 0; right: -300px; width: 300px; background: var(--bg-panel);
-            transition: 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); z-index: 99; display: flex; flex-direction: column;
-            padding: 20px; border-left: 2px solid var(--bg-item);
+            position: absolute; top: 0; bottom: 0; right: -320px; width: 320px;
+            transition: 0.3s; z-index: 99; display: flex; flex-direction: column; padding: 15px;
+            overflow-y: auto; /* إضافة سكرول مهم جداً */
+            padding-bottom: 25px;
         }
-        .sidebar.open { right: 0; box-shadow: -5px 0 25px rgba(0,0,0,0.8); }
+        .sidebar.open { right: 0; }
 
-        .profile-card { background: var(--bg-item); padding: 15px; border-radius: 16px; text-align: center; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .profile-avatar { width: 60px; height: 60px; background: var(--bg-main); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 10px; border: 2px solid var(--accent-blue); }
+        .profile-card { background: #8b8b8b; border: 2px solid #555; padding: 15px; text-align: center; margin-bottom: 15px; border-color: var(--mc-ui-dark) var(--mc-ui-light) var(--mc-ui-light) var(--mc-ui-dark); }
+        .profile-avatar { font-size: 2.5rem; margin-bottom: 10px; color: #fff; text-shadow: 2px 2px 0 #000; }
         
-        .room-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .btn-small { padding: 10px; font-size: 0.85rem; border: none; border-radius: 8px; background: var(--bg-item); color: white; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .room-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
 
-        .list-container { flex: 1; overflow-y: auto; margin-bottom: 15px; }
-        .list-item { padding: 12px 15px; background: var(--bg-main); margin-bottom: 8px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; border-right: 3px solid transparent; transition: 0.2s; }
-        .list-item:hover, .list-item.active { border-right-color: var(--accent-neon); background: rgba(255, 0, 85, 0.1); }
+        /* تعديل مظهر قائمة السيرفرات لتكون واضحة وبارزة */
+        .list-container { 
+            flex: 1; min-height: 120px; overflow-y: auto; margin-bottom: 15px; 
+            border: 3px inset #333; background: #1a1a1a; padding: 5px; 
+        }
+        .list-item { 
+            padding: 10px; background: #555; margin-bottom: 5px; border: 2px solid;
+            border-color: #888 #222 #222 #888;
+            cursor: pointer; display: flex; align-items: center; gap: 10px; color: white; text-shadow: 1px 1px 0 #000; font-weight: bold;
+        }
+        .list-item:hover { background: #666; border-color: var(--mc-border-hover); }
+        .list-item.active { background: #3e8528; border-color: #5cbf3c #1d4013 #1d4013 #5cbf3c; }
 
-        /* ساحة الألعاب العلوية */
-        .game-zone { background: linear-gradient(135deg, #111126, #181836); padding: 15px 20px; border-bottom: 2px dashed var(--accent-blue); display: flex; flex-direction: column; gap: 12px; z-index: 5; transition: all 0.3s ease; }
+        .game-zone { background: #222; padding: 10px 15px; border-bottom: 3px solid #555; display: flex; flex-direction: column; gap: 10px; z-index: 5; }
         .game-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .game-info { display: flex; flex-direction: column; gap: 2px; }
-        .game-title { font-size: 1rem; font-weight: bold; color: var(--accent-blue); display: flex; align-items: center; gap: 6px; }
-        .game-players-text { font-size: 0.85rem; color: var(--text-main); }
+        .game-info { display: flex; flex-direction: column; }
+        .game-title { font-size: 1rem; font-weight: bold; color: var(--mc-gold); }
+        .game-players-text { font-size: 0.85rem; color: #aaa; }
         
-        .btn-game-action { padding: 8px 16px; font-size: 0.85rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .btn-join-style { background: linear-gradient(45deg, #00ffcc, var(--accent-blue)); color: #000; }
-        .btn-vote-style { background: linear-gradient(45deg, #ff00ff, #7000ff); color: white; }
-        .btn-leave-style { background: #b3003b; color: white; }
+        .btn-game-action { padding: 8px 12px; font-size: 0.85rem; }
 
-        /* واجهة لوحة الـ XO الحقيقية */
-        .xo-board { display: grid; grid-template-columns: repeat(3, 60px); gap: 6px; justify-content: center; margin: 5px auto; }
-        .xo-cell { width: 60px; height: 60px; background: var(--bg-main); border: 2px solid var(--bg-item); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.6rem; font-weight: 900; cursor: pointer; transition: 0.2s; user-select: none; }
-        .xo-cell:hover { background: rgba(0, 210, 255, 0.15); border-color: var(--accent-blue); }
-        .xo-x { color: var(--accent-neon); text-shadow: var(--shadow-neon); }
-        .xo-o { color: var(--accent-blue); text-shadow: 0 0 10px rgba(0, 210, 255, 0.6); }
+        .xo-board { display: grid; grid-template-columns: repeat(3, 60px); gap: 4px; justify-content: center; margin: 5px auto; }
+        .xo-cell { width: 60px; height: 60px; background: #7b7b7b; border: 2px solid #333; display: flex; justify-content: center; align-items: center; font-size: 2rem; cursor: pointer; border-color: var(--mc-ui-dark) var(--mc-ui-light) var(--mc-ui-light) var(--mc-ui-dark); }
+        .xo-cell:hover { background: #8b8b8b; }
+        .xo-x { color: var(--mc-red); text-shadow: 2px 2px 0 #000; }
+        .xo-o { color: var(--mc-diamond); text-shadow: 2px 2px 0 #000; }
 
-        /* واجهة تحدي تخمين الأنمي الحقيقي */
-        .anime-quiz-box { background: var(--bg-main); padding: 12px; border-radius: 12px; border: 1px solid var(--bg-item); width: 100%; max-width: 500px; margin: 0 auto; text-align: center; }
-        .anime-clue { font-size: 0.95rem; font-weight: bold; color: #fff; margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px; }
+        .anime-quiz-box { background: #333; padding: 12px; border: 2px solid #555; width: 100%; max-width: 500px; margin: 0 auto; text-align: center; }
+        .anime-clue { font-size: 1rem; font-weight: bold; color: #fff; margin-bottom: 10px; text-shadow: 1px 1px 0 #000; }
         .anime-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .anime-opt-btn { padding: 10px; background: var(--bg-item); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
-        .anime-opt-btn:hover { border-color: var(--accent-neon); background: rgba(255, 0, 85, 0.1); }
 
-        /* واجهة الشات */
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: #07070d; }
-        .chat-info-bar { background: rgba(18, 18, 37, 0.6); padding: 10px 20px; font-size: 0.9rem; border-bottom: 1px solid var(--bg-item); color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center; }
-        
-        .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message-bubble { max-width: 80%; display: flex; flex-direction: column; }
-        .message-content { padding: 12px 16px; border-radius: 18px; line-height: 1.5; font-size: 1rem; word-break: break-word; }
-        .message-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-        
-        .msg-received { align-self: flex-start; }
-        .msg-received .message-content { background: var(--bg-panel); border-bottom-right-radius: 4px; }
-        .msg-sent { align-self: flex-end; }
-        .msg-sent .message-content { background: var(--accent-neon); color: white; border-bottom-left-radius: 4px; }
+        .mining-area { background: #222; border: 2px solid #000; padding: 10px; text-align: center; margin-bottom: 15px; }
+        .mining-block { 
+            display: inline-block; width: 50px; height: 50px; 
+            background-color: #79553a;
+            background-image: 
+                linear-gradient(45deg, #5c3b21 25%, transparent 25%, transparent 75%, #5c3b21 75%, #5c3b21), 
+                linear-gradient(45deg, #5c3b21 25%, transparent 25%, transparent 75%, #5c3b21 75%, #5c3b21);
+            background-size: 16px 16px;
+            background-position: 0 0, 8px 8px;
+            cursor: pointer; transition: 0.1s; border: 2px solid #000; 
+        }
+        .mining-block:active { transform: scale(0.9); filter: brightness(0.7); }
 
-        /* نافذة المتجر الفاخرة ونوافذ التحكم */
+        .chat-main { 
+            flex: 1; display: flex; flex-direction: column; 
+            background-color: #2b2b2b;
+            background-image: 
+                linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%, #1f1f1f), 
+                linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%, #1f1f1f);
+            background-size: 32px 32px; 
+            background-position: 0 0, 16px 16px; 
+        }
+        .chat-info-bar { background: rgba(0, 0, 0, 0.7); padding: 8px 15px; font-size: 0.9rem; border-bottom: 2px solid #333; color: #fff; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        
+        .messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message-bubble { display: flex; flex-direction: column; max-width: 100%; margin-bottom: 2px; }
+        .message-content { font-size: 1rem; color: white; word-break: break-word; text-shadow: 1px 1px 0px #000; line-height: 1.4; display: inline-block; }
+        .message-meta { font-size: 0.85rem; color: #aaa; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; text-shadow: 1px 1px 0px #000; font-weight: bold; }
+        
+        .msg-received .message-content { background: var(--mc-chat-bg); padding: 4px 8px; border-left: 3px solid #555; }
+        .msg-sent .message-content { background: var(--mc-chat-bg); padding: 4px 8px; border-right: 3px solid var(--mc-green); color: #fff; }
+
         .shop-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 10, 18, 0.95); z-index: 999; justify-content: center; align-items: center; padding: 20px;
+            background: rgba(0, 0, 0, 0.8); z-index: 999; justify-content: center; align-items: center; padding: 20px;
         }
         .shop-modal.active { display: flex; }
-        .shop-content {
-            background: var(--bg-panel); width: 100%; max-width: 520px; border-radius: 24px;
-            border: 2px solid var(--accent-blue); padding: 25px; box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
-            max-height: 85vh; overflow-y: auto;
-        }
-        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--bg-item); padding-bottom: 10px; }
-        .close-shop { background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
-        .shop-balance { background: var(--bg-main); padding: 12px; border-radius: 12px; text-align: center; font-weight: 900; margin-bottom: 20px; border: 1px dashed var(--accent-blue); font-size: 1.1rem; }
-        .neo-coin-text { color: var(--accent-blue); text-shadow: var(--neo-glow); }
+        .shop-content { width: 100%; max-width: 520px; padding: 20px; max-height: 85vh; overflow-y: auto; }
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #555; padding-bottom: 10px; }
+        .close-shop { background: none; border: none; color: #555; font-size: 2rem; cursor: pointer; text-shadow: 1px 1px 0 #fff; }
+        .close-shop:hover { color: #000; }
+        
+        .shop-balance { background: #333; color: white; padding: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; border: 2px inset #000; font-size: 1.1rem; }
+        .diamond-text { color: var(--mc-diamond); text-shadow: 1px 1px 0 #000; }
         
         .shop-item {
-            display: flex; justify-content: space-between; align-items: center; background: var(--bg-item);
-            padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03);
+            display: flex; justify-content: space-between; align-items: center; background: #8b8b8b;
+            padding: 10px; margin-bottom: 8px; border: 2px solid; border-color: var(--mc-ui-dark) var(--mc-ui-light) var(--mc-ui-light) var(--mc-ui-dark);
         }
-        .shop-item-info { display: flex; flex-direction: column; gap: 4px; }
-        .btn-buy { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: var(--accent-blue); color: #000; transition: 0.2s; }
-        .btn-buy:hover { transform: scale(1.05); box-shadow: var(--neo-glow); }
-        .btn-buy.equipped { background: #22c55e; color: white; cursor: default; transform: none; box-shadow: none; }
+        .shop-item-info { display: flex; flex-direction: column; gap: 4px; color: #fff; text-shadow: 1px 1px 0 #000; }
 
-        /* انيميشن وتوهج الرتب المتطورة */
-        @keyframes uchihaPulse {
-            from { text-shadow: 0 0 6px #ff0055, 0 0 12px #ff0055; }
-            to { text-shadow: 0 0 15px #ff0055, 0 0 25px #ff0000; }
+        @keyframes glowDiamond { 0% { text-shadow: 0 0 5px #55ffff; } 100% { text-shadow: 0 0 15px #ffffff, 0 0 20px #55ffff; } }
+        @keyframes glowNetherite { 0% { text-shadow: 0 0 5px #3a2e3a; color: #5c4a5c; } 100% { text-shadow: 0 0 10px #745f74; color: #8e738e; } }
+        @keyframes glowBedrock { 0% { text-shadow: 0 0 5px #000, 0 0 10px #ff0000; filter: contrast(1.2); } 100% { text-shadow: 0 0 15px #000, 0 0 25px #aa0000; filter: contrast(1.5); } }
+
+        .rank-glow-diamond { animation: glowDiamond 1s infinite alternate; font-weight: 900; color: var(--mc-diamond); }
+        .rank-glow-netherite { animation: glowNetherite 1.5s infinite alternate; font-weight: 900; }
+        .rank-glow-bedrock { animation: glowBedrock 0.5s infinite alternate; font-weight: 900; color: #fff; }
+
+        .image-container { position: relative; display: inline-block; max-width: 100%; margin-top: 5px; cursor: pointer; border: 3px solid #000; }
+        .media-img { max-width: 100%; max-height: 200px; display: block; image-rendering: pixelated; }
+        
+        .input-bar { padding: 10px; background: rgba(0,0,0,0.8); border-top: 3px solid #333; display: flex; gap: 8px; align-items: center; }
+        .input-bar input {
+            flex: 1; padding: 12px; background: #000; border: 2px solid #555; border-radius: 0;
+            color: white; outline: none; border-top-color: #222; border-left-color: #222;
         }
-        @keyframes stormPulse {
-            from { text-shadow: 0 0 6px #00e5ff, 0 0 12px #00e5ff; }
-            to { text-shadow: 0 0 18px #00e5ff, 0 0 28px #00a2ff; }
-        }
-        @keyframes legendSparkle {
-            0% { text-shadow: 0 0 8px #ffd700, 0 0 15px #ffaa00; filter: brightness(1); }
-            50% { text-shadow: 0 0 22px #fff, 0 0 32px #ffd700, 0 0 42px #ffaa00; filter: brightness(1.3); }
-            100% { text-shadow: 0 0 8px #ffd700, 0 0 15px #ffaa00; filter: brightness(1); }
-        }
-        @keyframes emperorPulse {
-            0% { text-shadow: 0 0 6px #ff0000, 0 0 12px #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
-            50% { text-shadow: 0 0 20px #ff0033, 0 0 30px #ff0000, 0 0 40px #ff0055; box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
-            100% { text-shadow: 0 0 6px #ff0000, 0 0 12px #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
-        }
-
-        .rank-glow-uchiha { animation: uchihaPulse 1.2s infinite alternate; font-weight: 900; }
-        .rank-glow-storm { animation: stormPulse 1s infinite alternate; font-weight: 900; }
-        .rank-glow-legend { animation: legendSparkle 1.4s infinite ease-in-out; font-weight: 900; }
-        .rank-glow-emperor { animation: emperorPulse 0.8s infinite alternate; font-weight: 900; color: #ff0033 !important; border: 1px solid #ff0000 !important; background: rgba(255, 0, 0, 0.15) !important; }
-
-        .image-container { position: relative; display: inline-block; max-width: 100%; margin-top: 5px; cursor: pointer; }
-        .media-img { max-width: 100%; max-height: 200px; border-radius: 12px; display: block; }
-        .nsfw-blur { filter: blur(20px); transition: filter 0.4s ease; }
-        .nsfw-warning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 18, 0.88); display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--accent-neon); font-size: 0.85rem; font-weight: bold; text-align: center; border-radius: 12px; }
-
-        /* شريط الكتابة ومؤشر الـ Typing */
-        #typing-indicator-box { padding: 4px 20px; min-height: 25px; display: flex; align-items: center; gap: 8px; background: transparent; }
-        .typing-indicator-dots { display: flex; align-items: center; gap: 4px; }
-        .typing-indicator-dots span { width: 6px; height: 6px; background-color: var(--accent-blue); border-radius: 50%; display: inline-block; animation: typingBounce 1.4s infinite ease-in-out both; }
-        .typing-indicator-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-indicator-dots span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        .input-bar { padding: 12px 15px; background: var(--bg-panel); border-top: 2px solid var(--bg-item); display: flex; gap: 10px; align-items: center; }
-        .input-bar input { flex: 1; padding: 14px 20px; background: var(--bg-main); border: 1px solid var(--bg-item); border-radius: 30px; color: white; outline: none; }
-        .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; }
-        .btn-send { background: var(--accent-neon); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-size: 1.1rem; display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow-neon); cursor: pointer; }
-
-        .backdrop { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 90; }
+        .icon-btn { background: none; border: none; color: #aaa; font-size: 1.4rem; cursor: pointer; text-shadow: 1px 1px 0 #000; transition: 0.1s; }
+        .icon-btn:hover { color: #fff; transform: scale(1.1); }
+        
+        .backdrop { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 90; }
         .backdrop.active { display: block; }
+
+        .mc-stats { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.8rem; color: #fff; text-shadow: 1px 1px 0 #000; }
     </style>
 </head>
 <body>
@@ -208,141 +236,116 @@
     <div class="backdrop" id="backdrop" onclick="toggleSidebar()"></div>
 
     <div class="shop-modal" id="shop-modal">
-        <div class="shop-content">
+        <div class="shop-content mc-panel">
             <div class="shop-header">
-                <h3><i class="fas fa-store" style="color: var(--accent-blue);"></i> متجر الرتب المتوهجة</h3>
+                <h3 class="pixel-font" style="color: #333; text-shadow: 1px 1px 0 #fff;"><i class="fas fa-box"></i> متجر السيرفر</h3>
                 <button class="close-shop" onclick="closeShop()">&times;</button>
             </div>
             <div class="shop-balance">
-                رصيدك الحالي: <span id="shop-neo-balance" class="neo-coin-text">0</span> <span class="neo-coin-text">⚡ نيو</span>
+                المخزون الحالي: <span id="shop-neo-balance" class="diamond-text">0</span> <span class="diamond-text">💎 ألماس</span>
             </div>
             <div class="shop-items-grid"></div>
         </div>
     </div>
 
     <div class="shop-modal" id="redeem-modal">
-        <div class="shop-content" style="max-width: 400px; border-color: var(--accent-neon); box-shadow: var(--shadow-neon);">
+        <div class="shop-content mc-panel" style="max-width: 400px;">
             <div class="shop-header">
-                <h3><i class="fas fa-ticket-alt" style="color: var(--accent-neon);"></i> استبدال الأكواد السرية</h3>
+                <h3 class="pixel-font" style="color: #333; text-shadow: 1px 1px 0 #fff;"><i class="fas fa-tag"></i> إدخال كود سري (Name Tag)</h3>
                 <button class="close-shop" onclick="closeRedeemModal()">&times;</button>
             </div>
             <div class="input-group" style="margin-top: 20px; margin-bottom: 20px;">
-                <i class="fas fa-key" style="color: var(--accent-blue);"></i>
-                <input type="text" id="promo-code-input" placeholder="أدخل الكود السري هنا..." style="text-align: center; text-transform: uppercase;">
+                <input type="text" id="promo-code-input" placeholder="أدخل الكود هنا..." style="text-align: center; text-transform: uppercase;">
             </div>
-            <button class="btn-action" onclick="processPromoCode()">تأكيد الاستبدال ⚡</button>
-        </div>
-    </div>
-
-    <div class="shop-modal" id="admin-ban-modal">
-        <div class="shop-content" style="max-width: 420px; border-color: var(--accent-neon); box-shadow: var(--shadow-neon);">
-            <div class="shop-header">
-                <h3><i class="fas fa-gavel" style="color: var(--accent-neon);"></i> لوحة التحكم بالعقوبات برمجياً</h3>
-                <button class="close-shop" onclick="closeBanModal()">&times;</button>
-            </div>
-            <div id="ban-modal-user-info" style="margin: 15px 0; text-align: center; font-weight: bold; color: var(--accent-blue); font-size: 1.05rem;"></div>
-            <input type="hidden" id="ban-target-uid">
-            <input type="hidden" id="ban-target-name">
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; margin-bottom:8px; font-size:0.95rem; color:var(--text-muted);">اختر الإجراء أو مدة الحظر الحية:</label>
-                <select id="ban-duration-select" style="width:100%; padding:12px; background:var(--bg-main); border:1px solid var(--bg-item); color:white; border-radius:10px; font-weight:bold; outline:none;">
-                    <option value="1">ساعة واحدة (1 Hour)</option>
-                    <option value="24">24 ساعة (يوم كامل)</option>
-                    <option value="144">6 أيام متتالية</option>
-                    <option value="8760">سنة كاملة (365 يوم)</option>
-                    <option value="perm">🚨 باند نهائي ومطلق</option>
-                    <option value="unban">✅ فك الحظر عن الحساب الآن</option>
-                </select>
-            </div>
-            <button class="btn-action" onclick="executeAdminBanAction()">تطبيق القرار على السيرفر 🔨</button>
+            <button class="mc-btn mc-btn-action" style="width: 100%;" onclick="processPromoCode()">استبدال 💎</button>
         </div>
     </div>
 
     <div class="screen active" id="auth-screen">
-        <div class="auth-container">
-            <div class="auth-logo">ANIME OVA!</div>
-            <div class="auth-subtitle" id="auth-title">تسجيل الدخول إلى حسابك</div>
+        <div class="auth-container mc-panel">
+            <div class="auth-logo pixel-font">MINECRAFT HUB</div>
+            <div class="auth-subtitle pixel-font" id="auth-title">تسجيل الدخول للسيرفر</div>
             
             <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="username-input" placeholder="اسم المستخدم">
+                <input type="text" id="username-input" placeholder="اسم اللاعب (Player Name)">
             </div>
             
             <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="password-input" placeholder="كلمة السر">
+                <input type="password" id="password-input" placeholder="كلمة المرور (Password)">
             </div>
 
-            <button class="btn-action" id="btn-submit" onclick="handleAuth()">دخول</button>
-            <div class="auth-switch" id="auth-toggle" onclick="toggleAuthMode()">ليس لديك حساب؟ أنشئ حساباً الآن</div>
+            <button class="mc-btn mc-btn-action" style="width: 100%; margin-top: 10px;" id="btn-submit" onclick="handleAuth()">دخول اللعبة</button>
+            <div class="auth-switch pixel-font" id="auth-toggle" onclick="toggleAuthMode()">لاعب جديد؟ أنشئ حساباً</div>
         </div>
     </div>
 
     <div class="screen" id="app-screen">
         <header class="app-header">
             <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <div class="header-title">ANIME OVA!</div>
+            <div class="header-title pixel-font">MINECHAT</div>
             <div style="width: 24px;"></div> 
         </header>
 
         <div class="app-body">
-            <aside class="sidebar" id="sidebar">
+            <aside class="sidebar mc-panel" id="sidebar">
                 <div class="profile-card">
-                    <div class="profile-avatar"><i class="fas fa-user-ninja fa-2x" style="color: var(--accent-blue);"></i></div>
-                    <div id="user-display-name" style="font-weight: bold; margin-bottom: 2px;">جاري التحميل...</div>
+                    <div class="profile-avatar"><i class="fas fa-cube"></i></div>
+                    <div id="user-display-name" style="font-weight: bold; margin-bottom: 2px; color: #fff; text-shadow: 2px 2px 0 #000; font-size: 1.2rem;">جاري التحميل...</div>
                     <div id="user-rank"></div>
-                </div>
-
-                <button class="btn-small" onclick="openShop()" style="width: 100%; margin-bottom: 10px; background: linear-gradient(45deg, #00d2ff, #0055ff); color: #000; font-weight: bold;">
-                    <i class="fas fa-shopping-bag"></i> متجر رتب النيو
-                </button>
-
-                <button class="btn-small" onclick="openRedeemModal()" style="width: 100%; margin-bottom: 15px; background: linear-gradient(45deg, var(--accent-neon), #b3003b); color: #fff; font-weight: bold; border: 1px solid rgba(255,255,255,0.1);">
-                    <i class="fas fa-ticket-alt"></i> استبدال اكواد
-                </button>
-
-                <button id="admin-manual-unban-btn" class="btn-small" onclick="manualUnbanPrompt()" style="display: none; width: 100%; margin-bottom: 15px; background: #22c55e; color: #fff; font-weight: bold;">
-                    <i class="fas fa-unlock"></i> إلغاء حظر يدوي بالـ ID
-                </button>
-
-                <div class="room-actions">
-                    <button class="btn-small" onclick="createRoom()"><i class="fas fa-plus"></i> إنشاء غرفة</button>
-                    <button class="btn-small" onclick="joinRoom()"><i class="fas fa-sign-in-alt"></i> دخول بـ ID</button>
-                </div>
-
-                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">الغرف المتاحة</div>
-                <div class="list-container" id="rooms-list">
-                    <div class="list-item active" id="room-item-global_chat" onclick="switchRoom('global_chat', this)">
-                        <i class="fas fa-globe" style="color: var(--accent-neon);"></i>
-                        <span>الدردشة العالمية</span>
+                    <div class="mc-stats">
+                        <span>❤️❤️❤️❤️❤️</span>
+                        <span>🍖🍖🍖🍖🍖</span>
                     </div>
                 </div>
 
-                <button class="btn-small" onclick="logoutUser()" style="background: linear-gradient(45deg, var(--accent-neon), #b3003b); width: 100%; border: none; padding: 12px; font-weight: bold; margin-top: auto;">
-                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                <div class="mining-area">
+                    <div style="color: #fff; text-shadow: 1px 1px 0 #000; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">⛏️ منطقة التنقيب (انقر للتكسير)</div>
+                    <div class="mining-block" id="mining-block" onclick="mineBlock()"></div>
+                    <div id="mining-msg" style="color: #55ff55; font-size: 0.8rem; margin-top: 5px; height: 15px; font-weight: bold;"></div>
+                </div>
+
+                <button class="mc-btn" onclick="openShop()" style="width: 100%; margin-bottom: 10px; color: var(--mc-diamond);">
+                    <i class="fas fa-box"></i> متجر الرتب 💎
+                </button>
+
+                <button class="mc-btn" onclick="openRedeemModal()" style="width: 100%; margin-bottom: 15px;">
+                    <i class="fas fa-tag"></i> استبدال أكواد
+                </button>
+
+                <div class="room-actions">
+                    <button class="mc-btn mc-btn-action" style="padding: 10px; font-size: 0.9rem;" onclick="createRoom()"><i class="fas fa-plus"></i> إنشاء سيرفر</button>
+                    <button class="mc-btn" style="padding: 10px; font-size: 0.9rem;" onclick="joinRoom()"><i class="fas fa-sign-in-alt"></i> دخول بـ IP</button>
+                </div>
+
+                <div style="font-size: 0.9rem; color: #222; font-weight: bold; margin-bottom: 5px;">السيرفرات المتاحة:</div>
+                <div class="list-container" id="rooms-list">
+                    <div class="list-item active" id="room-item-global_chat" onclick="switchRoom('global_chat', this)">
+                        <i class="fas fa-globe" style="color: #55ff55;"></i>
+                        <span>الدردشة العالمية (Spawn)</span>
+                    </div>
+                </div>
+
+                <button class="mc-btn mc-btn-danger" onclick="logoutUser()" style="width: 100%; margin-top: auto;">
+                    <i class="fas fa-sign-out-alt"></i> الخروج من السيرفر
                 </button>
             </aside>
 
             <main class="chat-main">
                 <div class="game-zone" id="game-zone-container"></div>
                 <div class="chat-info-bar" id="current-room-title">
-                    <span><i class="fas fa-hashtag"></i> الغرفة العالمية الحرة</span>
+                    <span><i class="fas fa-map-marker-alt"></i> المنطقة: Spawn</span>
                 </div>
-                
                 <div class="messages-container" id="messages-box"></div>
 
-                <div id="typing-indicator-box"></div>
-
                 <div class="input-bar">
-                    <label class="icon-btn">
+                    <label class="icon-btn" title="إرسال صورة (Painting)">
                         <i class="fas fa-image"></i>
                         <input type="file" id="image-loader" accept="image/*" style="display: none;" onchange="sendImage(this)">
                     </label>
-                    <button class="icon-btn" onclick="insertEmoji('🔥')"><i class="fas fa-fire"></i></button>
-                    <button class="icon-btn" onclick="insertEmoji('👑')"><i class="fas fa-crown"></i></button>
-                    <input type="text" id="message-field" placeholder="اكتب رسالتك..." onkeypress="if(event.key === 'Enter') sendMessage()">
-                    <button class="btn-send" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                    <button class="icon-btn" onclick="insertEmoji('💎')"><i class="far fa-gem"></i></button>
+                    <button class="icon-btn" onclick="insertEmoji('⚔️')"><i class="fas fa-gavel"></i></button>
+                    <input type="text" id="message-field" class="pixel-font" placeholder="<T> اكتب رسالتك في الشات..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <button class="mc-btn mc-btn-action" style="padding: 8px 15px;" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </main>
         </div>
@@ -367,16 +370,16 @@
         let currentUser = null;
         let isLoginMode = true;
         let currentGameListener = null;
-        let typingTimeout = null;
-        let currentTypingListener = null;
 
-        const ranksPrices = { "صاعد": 0, "قرصان": 15, "ساياجين": 25, "المنهي": 55, "شبح الاوتشيها": 80, "قاهر العاصفة": 100, "قمة الاساطير": 200, "الامبراطور المطلق": 0 };
+        const ranksPrices = { 
+            "خشب": 0, "فحم": 15, "حديد": 25, "ذهب": 55, "ألماس": 80, "نذررايت": 100, "بدرك": 200 
+        };
 
         const animeQuestions = [
-            { clue: "صاحب مقولة 'سأصبح ملك القراصنة!' ومحب للحم 🍖", options: ["لوفي", "غوكو", "ناروتو"], answer: "لوفي" },
-            { clue: "سايان أُرسل للأرض، يحب الأكل والتطور الخارق، ومنافسه الأبدي فيجيتا ☄️", options: ["غوهان", "غوكو", "برولي"], answer: "غوكو" },
-            { clue: "نينجا يحلم بأن يصبح الهوكاجي وييحب تناول الرامن 🦊", options: ["ساسكي", "كاكاشي", "ناروتو"], answer: "ناروتو" },
-            { clue: "نائب قائد طاقم قبعة القش ومبارز مشهور بأسلوب الثلاثة سيوف والضياع ⚔️", options: ["زورو", "سانجي", "ميهوك"], answer: "زورو" }
+            { clue: "موب أخضر صامت يقترب منك ثم ينفجر فجأة 💥", options: ["زومبي", "كريبر", "سكيليتون"], answer: "كريبر" },
+            { clue: "ما هو المورد الأساسي الذي تحتاجه لصناعة الدروع الماسية؟ 💎", options: ["حديد", "ألماس", "زمرد"], answer: "ألماس" },
+            { clue: "البوابة التي تنقلك إلى عالم النهاية (End) تحتاج لتفعيلها إلى؟ 👁️", options: ["أوبسيديان", "عين الإندر", "نذر راك"], answer: "عين الإندر" },
+            { clue: "أقوى مادة في اللعبة ويتم إيجاد حطامها في عالم النذر؟ ⚒️", options: ["نذررايت", "ألماس", "أوبسيديان"], answer: "نذررايت" }
         ];
 
         document.body.addEventListener('click', function() {
@@ -391,46 +394,49 @@
                 const gainNode = window.audioCtx.createGain();
                 osc.connect(gainNode); gainNode.connect(window.audioCtx.destination);
                 if (type === 'message') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, window.audioCtx.currentTime); gainNode.gain.setValueAtTime(0.1, window.audioCtx.currentTime);
-                    osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.12); osc.stop(window.audioCtx.currentTime + 0.12);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, window.audioCtx.currentTime); gainNode.gain.setValueAtTime(0.1, window.audioCtx.currentTime);
+                    osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.05); osc.stop(window.audioCtx.currentTime + 0.05);
                 } else if (type === 'click') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(750, window.audioCtx.currentTime); gainNode.gain.setValueAtTime(0.06, window.audioCtx.currentTime);
+                    osc.type = 'square'; osc.frequency.setValueAtTime(300, window.audioCtx.currentTime); gainNode.gain.setValueAtTime(0.05, window.audioCtx.currentTime);
                     osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.05); osc.stop(window.audioCtx.currentTime + 0.05);
                 } else if (type === 'join') {
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, window.audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, window.audioCtx.currentTime + 0.08); gainNode.gain.setValueAtTime(0.12, window.audioCtx.currentTime);
-                    osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.2); osc.stop(window.audioCtx.currentTime + 0.2);
-                } else if (type === 'game_start') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(440, window.audioCtx.currentTime); osc.frequency.setValueAtTime(880, window.audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.12, window.audioCtx.currentTime);
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(600, window.audioCtx.currentTime); osc.frequency.setValueAtTime(800, window.audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.1, window.audioCtx.currentTime);
                     osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.3); osc.stop(window.audioCtx.currentTime + 0.3);
+                } else if (type === 'mine') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, window.audioCtx.currentTime); gainNode.gain.setValueAtTime(0.1, window.audioCtx.currentTime);
+                    osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.1); osc.stop(window.audioCtx.currentTime + 0.1);
                 } else if (type === 'game_end') {
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(550, window.audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(120, window.audioCtx.currentTime + 0.4); gainNode.gain.setValueAtTime(0.12, window.audioCtx.currentTime);
-                    osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.4); osc.stop(window.audioCtx.currentTime + 0.4);
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, window.audioCtx.currentTime); gainNode.gain.setValueAtTime(0.2, window.audioCtx.currentTime);
+                    osc.start(); gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.15); osc.stop(window.audioCtx.currentTime + 0.15);
                 }
             } catch (e) { console.log(e); }
         }
 
         function getRankHTML(rankName) {
-            if (!rankName) rankName = "صاعد";
-            const baseStyle = "padding: 2px 6px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; display: inline-block; border: 1px solid transparent;";
-            switch(rankName) {
-                case "صاعد": return `<span style="${baseStyle} color: #c0c0c0; border-color: #c0c0c0; background: rgba(192,192,192,0.08);">(صاعد)</span>`;
-                case "قرصان": return `<span style="${baseStyle} color: #ffd700; border-color: #ffd700; background: rgba(255,215,0,0.08);">(قرصان)</span>`;
-                case "ساياجين": return `<span style="${baseStyle} color: #00d2ff; border-color: #00d2ff; background: rgba(0,210,255,0.08);">(ساياجين)</span>`;
-                case "المنهي": return `<span style="${baseStyle} color: #ffcc00; text-shadow: 0 0 6px #ffcc00; font-weight:900;">【الـمـنـهـي】</span>`;
-                case "شبح الاوتشيها": return `<span class="rank-glow-uchiha" style="color: #ff0055; font-size:0.8rem;">⚡【شبح الأوتشيها】⚡</span>`;
-                case "قاهر العاصفة": return `<span class="rank-glow-storm" style="color: #00e5ff; font-size:0.8rem;">🌀【قاهر العاصفة】🌀</span>`;
-                case "قمة الاساطير": return `<span class="rank-glow-legend" style="color: #ffd700; font-size:0.85rem;">✨👑【قِمّة الأَسَاطِير】👑✨</span>`;
-                case "الامبراطور المطلق": return `<span class="rank-glow-emperor" style="font-size:0.85rem;">👑🔥【الإمبراطور المطلق】🔥👑</span>`;
-                default: return `<span style="${baseStyle} color: #fff;">(${rankName})</span>`;
+            let mcRank = rankName;
+            const rankMapping = { "صاعد": "خشب", "قرصان": "فحم", "ساياجين": "حديد", "المنهي": "ذهب", "شبح الاوتشيها": "ألماس", "قاهر العاصفة": "نذررايت", "قمة الاساطير": "بدرك" };
+            if(rankMapping[rankName]) mcRank = rankMapping[rankName];
+            if (!mcRank) mcRank = "خشب";
+
+            const baseStyle = "padding: 0 4px; font-size: 0.8rem; font-weight: bold; display: inline-block; font-family: 'Pixelify Sans', sans-serif;";
+            switch(mcRank) {
+                case "خشب": return `<span style="${baseStyle} color: #a06e3d;">[Wood]</span>`;
+                case "فحم": return `<span style="${baseStyle} color: #333; text-shadow: 1px 1px 0 #fff;">[Coal]</span>`;
+                case "حديد": return `<span style="${baseStyle} color: #e5e5e5;">[Iron]</span>`;
+                case "ذهب": return `<span style="${baseStyle} color: #ffaa00;">[Gold]</span>`;
+                case "ألماس": return `<span class="rank-glow-diamond" style="${baseStyle}">[Diamond]</span>`;
+                case "نذررايت": return `<span class="rank-glow-netherite" style="${baseStyle}">[Netherite]</span>`;
+                case "بدرك": return `<span class="rank-glow-bedrock" style="${baseStyle}">[Bedrock]</span>`;
+                default: return `<span style="${baseStyle} color: #fff;">[${mcRank}]</span>`;
             }
         }
 
         function toggleAuthMode() {
             playSFX('click');
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول إلى حسابك" : "إنشاء حساب جديد";
-            document.getElementById('btn-submit').innerText = isLoginMode ? "دخول" : "إنشاء حساب";
-            document.getElementById('auth-toggle').innerText = isLoginMode ? "ليس لديك حساب؟ أنشئ حساباً الآن" : "لديك حساب بالفعل؟ سجل دخولك";
+            document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول للسيرفر" : "إنشاء حساب جديد";
+            document.getElementById('btn-submit').innerText = isLoginMode ? "دخول اللعبة" : "إنشاء الحساب";
+            document.getElementById('auth-toggle').innerText = isLoginMode ? "لاعب جديد؟ أنشئ حساباً" : "لديك حساب بالفعل؟ سجل دخولك";
         }
 
         function handleAuth() {
@@ -439,8 +445,8 @@
             const password = document.getElementById('password-input').value.trim();
             const btn = document.getElementById('btn-submit');
 
-            if (!username || !password) return alert("الرجاء إدخال اسم المستخدم وكلمة السر!");
-            const dummyEmail = username.toLowerCase() + "@ova.com";
+            if (!username || !password) return alert("الرجاء إدخال الاسم وكلمة المرور!");
+            const dummyEmail = username.toLowerCase() + "@minechat.com";
             btn.disabled = true;
 
             if (isLoginMode) {
@@ -451,7 +457,7 @@
                 auth.createUserWithEmailAndPassword(dummyEmail, password).then((userCredential) => {
                     return userCredential.user.updateProfile({ displayName: username });
                 }).catch(() => {
-                    btn.disabled = false; alert("اسم المستخدم محجوز!");
+                    btn.disabled = false; alert("الاسم محجوز مسبقاً في السيرفر!");
                 });
             }
         }
@@ -460,24 +466,10 @@
             if (user) {
                 currentUser = user;
 
-                // نظام الحظر المطور الصارم
                 database.ref('banned_users/' + user.uid).on('value', (banSnap) => {
                     if (banSnap.exists()) {
-                        const banData = banSnap.val();
-                        if (banData.type === 'perm') {
-                            alert("🚫 عذراً، لقد تم حظر حسابك نهائياً من دخول تطبيق ANIME OVA!");
-                            auth.signOut().then(() => { location.reload(); });
-                        } else if (banData.type === 'temp') {
-                            const now = Date.now();
-                            if (now < banData.expiresAt) {
-                                const timeLeft = banData.expiresAt - now;
-                                const hoursLeft = Math.ceil(timeLeft / (1000 * 60 * 60));
-                                alert(`🚫 عذراً، حسابك محظور مؤقتاً! الوقت المتبقي لانتهاء العقوبة: ${hoursLeft} ساعة تقريباً.`);
-                                auth.signOut().then(() => { location.reload(); });
-                            } else {
-                                database.ref('banned_users/' + user.uid).remove();
-                            }
-                        }
+                        alert("🚫 You are banned from this server.");
+                        auth.signOut().then(() => { location.reload(); });
                     }
                 });
 
@@ -487,8 +479,11 @@
                 
                 database.ref('users/' + user.uid).on('value', (snap) => {
                     let uData = snap.val() || {};
-                    if (!uData.rank) uData.rank = "صاعد";
-                    if (uData.neo === undefined) uData.neo = 0;
+                    const rankMapping = { "صاعد": "خشب", "قرصان": "فحم", "ساياجين": "حديد", "المنهي": "ذهب", "شبح الاوتشيها": "ألماس", "قاهر العاصفة": "نذررايت", "قمة الاساطير": "بدرك" };
+                    if (uData.rank && rankMapping[uData.rank]) { uData.rank = rankMapping[uData.rank]; }
+                    if (!uData.rank) uData.rank = "خشب";
+                    
+                    if (uData.neo === undefined) uData.neo = 0; 
                     window.currentUserData = uData;
                     window.currentUserIsAdmin = uData.isAdmin || false;
 
@@ -497,25 +492,18 @@
                     let pNeo = document.getElementById('profile-neo-bal');
                     if (!pNeo) {
                         pNeo = document.createElement('div'); pNeo.id = 'profile-neo-bal';
-                        pNeo.style.cssText = "margin-top:8px; font-size:0.9rem; font-weight:bold; color:#00d2ff; text-shadow:var(--neo-glow);";
+                        pNeo.style.cssText = "margin-top:10px; font-size:1rem; font-weight:bold; color:var(--mc-diamond); text-shadow:2px 2px 0 #000;";
                         document.querySelector('.profile-card').appendChild(pNeo);
                     }
-                    pNeo.innerHTML = `⚡ رصيدك: ${uData.neo} نيو`;
+                    pNeo.innerHTML = `💎 الألماس: ${uData.neo}`;
                     document.getElementById('shop-neo-balance').innerText = uData.neo;
 
                     const clearBtn = document.getElementById('admin-clear-chat');
-                    if (clearBtn) {
-                        clearBtn.style.display = (window.currentUserIsAdmin && activeRoom === 'global_chat') ? 'block' : 'none';
-                    }
-                    const manualUnbanBtn = document.getElementById('admin-manual-unban-btn');
-                    if (manualUnbanBtn) {
-                        manualUnbanBtn.style.display = window.currentUserIsAdmin ? 'block' : 'none';
-                    }
+                    if (clearBtn) { clearBtn.style.display = (window.currentUserIsAdmin && activeRoom === 'global_chat') ? 'block' : 'none'; }
                 });
 
                 switchRoom(activeRoom);
                 listenToGlobalRooms();
-                setupTypingTracker();
             } else {
                 document.getElementById('auth-screen').classList.add('active');
                 document.getElementById('app-screen').classList.remove('active');
@@ -523,55 +511,38 @@
         });
 
         function logoutUser() {
-            if (currentUser) database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
             playSFX('game_end');
             auth.signOut().then(() => { location.reload(); });
         }
 
-        // --- نظام مؤشر إشارة الكتابة ---
-        function setupTypingTracker() {
-            const msgField = document.getElementById('message-field');
-            msgField.addEventListener('input', () => {
-                if (!currentUser) return;
-                database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).set({
-                    name: currentUser.displayName || currentUser.email.split('@')[0],
-                    isTyping: true
-                });
-                
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => {
-                    if (currentUser) database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
-                }, 2000); 
-            });
-        }
+        let mineCooldown = false;
+        function mineBlock() {
+            if (mineCooldown || !currentUser) return;
+            playSFX('mine');
+            mineCooldown = true;
+            
+            const msgEl = document.getElementById('mining-msg');
+            msgEl.innerText = "جاري التكسير...";
+            msgEl.style.color = "#aaa";
 
-        function listenToTypingStatus(roomId) {
-            if (currentTypingListener) currentTypingListener.off();
-            currentTypingListener = database.ref(`typing_status/${roomId}`);
-            currentTypingListener.on('value', (snap) => {
-                const box = document.getElementById('typing-indicator-box');
-                if (!box) return;
-                const typers = snap.val() || {};
-                const activeTypers = [];
-                
-                for (let uid in typers) {
-                    if (currentUser && uid !== currentUser.uid && typers[uid].isTyping) {
-                        activeTypers.push(typers[uid].name);
-                    }
-                }
-                
-                if (activeTypers.length > 0) {
-                    box.innerHTML = `
-                        <div class="typing-indicator-dots"><span></span><span></span><span></span></div>
-                        <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight:bold;">${activeTypers.join(' و ')} يكتب الآن...</span>
-                    `;
+            setTimeout(() => {
+                const chance = Math.random();
+                if (chance < 0.15) { 
+                    database.ref('users/' + currentUser.uid + '/neo').transaction((currentNeo) => {
+                        return (currentNeo || 0) + 1;
+                    });
+                    playSFX('join');
+                    msgEl.innerText = "لقيت ألماس! +1 💎";
+                    msgEl.style.color = "var(--mc-diamond)";
                 } else {
-                    box.innerHTML = '';
+                    msgEl.innerText = "بلوكة ديرت عادية..";
+                    msgEl.style.color = "#8b8b8b";
                 }
-            });
+                mineCooldown = false;
+                setTimeout(() => { if(!mineCooldown) msgEl.innerText = ""; }, 2000);
+            }, 500);
         }
 
-        // --- إدارة الألعاب ---
         function setupGameZone(roomId) {
             if (currentGameListener) currentGameListener.off();
             const container = document.getElementById('game-zone-container');
@@ -590,10 +561,10 @@
                     container.innerHTML = `
                         <div class="game-header-row">
                             <div class="game-info">
-                                <span class="game-title">⚔️ ساحة التحدي لغرفة: ${roomId}</span>
-                                <span class="game-players-text" style="color: var(--accent-blue);">الساحة شاغرة بالكامل.. من يتجرأ؟</span>
+                                <span class="game-title">⚔️ ساحة القتال (Arena) لـ ${roomId}</span>
+                                <span class="game-players-text" style="color: #55ff55;">الساحة فارغة.. جاهز للـ PvP؟</span>
                             </div>
-                            <button class="btn-game-action btn-join-style" onclick="enterGameQueue('${roomId}')">حجز مقعد</button>
+                            <button class="mc-btn mc-btn-action btn-game-action" onclick="enterGameQueue('${roomId}')">حجز مقعد</button>
                         </div>
                     `;
                 } 
@@ -602,9 +573,9 @@
                         <div class="game-header-row">
                             <div class="game-info">
                                 <span class="game-title">⚔️ في الانتظار (1/2)</span>
-                                <span class="game-players-text">البطل: <b style="color:var(--accent-neon);">${players[pIds[0]].name}</b> في الانتظار...</span>
+                                <span class="game-players-text">اللاعب <b style="color:var(--mc-gold);">${players[pIds[0]].name}</b> ينتظر خصماً...</span>
                             </div>
-                            ${amIIn ? `<button class="btn-game-action btn-leave-style" onclick="leaveGameQueue('${roomId}')">انسحاب</button>` : `<button class="btn-game-action btn-join-style" onclick="enterGameQueue('${roomId}')">قبول النزال ⚡</button>`}
+                            ${amIIn ? `<button class="mc-btn mc-btn-danger btn-game-action" onclick="leaveGameQueue('${roomId}')">انسحاب</button>` : `<button class="mc-btn mc-btn-action btn-game-action" onclick="enterGameQueue('${roomId}')">قبول التحدي ⚔️</button>`}
                         </div>
                     `;
                 } 
@@ -619,14 +590,14 @@
                         container.innerHTML = `
                             <div class="game-header-row">
                                 <div class="game-info">
-                                    <span class="game-title" style="color:var(--accent-blue);">🗳️ نافذة التصويت واختيار اللعبة (${voteIds.length}/2)</span>
-                                    <span class="game-players-text">${p1.name} ضد ${p2.name} .. صوتوا للبدء!</span>
+                                    <span class="game-title" style="color:var(--mc-diamond);">🗳️ اختيار نوع التحدي (${voteIds.length}/2)</span>
+                                    <span class="game-players-text">${p1.name} ضد ${p2.name}</span>
                                 </div>
-                                <button class="btn-game-action btn-leave-style" onclick="leaveGameQueue('${roomId}')">إلغاء</button>
+                                <button class="mc-btn mc-btn-danger btn-game-action" onclick="leaveGameQueue('${roomId}')">إلغاء</button>
                             </div>
                             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 5px;">
-                                <button class="btn-game-action btn-join-style" onclick="submitGameVote('${roomId}', 'xo')">لعبة XO (${xoVotes})</button>
-                                <button class="btn-game-action btn-vote-style" onclick="submitGameVote('${roomId}', 'anime')">تخمين الأنمي (${animeVotes})</button>
+                                <button class="mc-btn btn-game-action" onclick="submitGameVote('${roomId}', 'xo')">لعبة الأسلحة (${xoVotes})</button>
+                                <button class="mc-btn btn-game-action" onclick="submitGameVote('${roomId}', 'anime')">أسئلة ماين كرافت (${animeVotes})</button>
                             </div>
                         `;
 
@@ -640,7 +611,7 @@
                                 initUpdate.currentQuestion = 0; initUpdate.scores = { [pIds[0]]: 0, [pIds[1]]: 0 };
                             }
                             database.ref('game_rooms/' + roomId).update(initUpdate);
-                            playSFX('game_start');
+                            playSFX('join');
                         }
                     } 
                     else {
@@ -659,28 +630,22 @@
             const name = currentUser.displayName || currentUser.email.split('@')[0];
             database.ref('game_rooms/' + roomId + '/players').once('value', (snap) => {
                 if(snap.numChildren() >= 2) alert("المقاعد ممتلئة!");
-                else { playSFX('join'); database.ref('game_rooms/' + roomId + '/players/' + currentUser.uid).set({ name: name }); }
+                else { playSFX('click'); database.ref('game_rooms/' + roomId + '/players/' + currentUser.uid).set({ name: name }); }
             });
         }
 
         function submitGameVote(roomId, type) {
-            playSFX('click');
-            database.ref('game_rooms/' + roomId + '/votes/' + currentUser.uid).set(type);
+            playSFX('click'); database.ref('game_rooms/' + roomId + '/votes/' + currentUser.uid).set(type);
         }
 
         function leaveGameQueue(roomId) {
             playSFX('game_end');
             database.ref('game_rooms/' + roomId).once('value', (snap) => {
-                const data = snap.val() || {};
-                const players = data.players || {};
-                const pIds = Object.keys(players);
-                
+                const data = snap.val() || {}; const players = data.players || {}; const pIds = Object.keys(players);
                 if (pIds.length === 2 && data.status === "playing" && !data.winner) {
                     const opponentId = pIds.find(id => id !== currentUser.uid);
                     if (opponentId) {
-                        database.ref('users/' + opponentId + '/neo').transaction((currentNeo) => {
-                            return (currentNeo || 0) + 2; 
-                        });
+                        database.ref('users/' + opponentId + '/neo').transaction((currentNeo) => { return (currentNeo || 0) + 2; });
                     }
                 }
                 database.ref('game_rooms/' + roomId).remove();
@@ -693,34 +658,32 @@
             const isMyTurn = gameData.turn === currentUser.uid;
 
             let statusText = gameData.winner ? 
-                (gameData.winner === 'tie' ? "🤝 تعادل أسطوري!" : `🏆 الفائز: ${players[gameData.winner] ? players[gameData.winner].name : 'مجهول'}`) : 
-                (isMyTurn ? "🔥 دورك الآن! العب حركتك" : "⏳ انتظر حركة الخصم...");
+                (gameData.winner === 'tie' ? "🤝 تعادل!" : `🏆 الفائز: ${players[gameData.winner] ? players[gameData.winner].name : 'مجهول'}`) : 
+                (isMyTurn ? "🔥 دورك الآن!" : "⏳ انتظر حركة الخصم...");
 
             let boardHTML = `<div class="xo-board">`;
             for (let i = 0; i < 9; i++) {
+                let displaySym = board[i] === 'X' ? '⚔️' : (board[i] === 'O' ? '⛏️' : '');
                 let cellClass = board[i] === 'X' ? 'xo-cell xo-x' : (board[i] === 'O' ? 'xo-cell xo-o' : 'xo-cell');
-                boardHTML += `<div class="${cellClass}" onclick="handleXOMove('${roomId}', ${i})">${board[i]}</div>`;
+                boardHTML += `<div class="${cellClass}" onclick="handleXOMove('${roomId}', ${i})">${displaySym}</div>`;
             }
             boardHTML += `</div>`;
 
             container.innerHTML = `
                 <div class="game-header-row">
                     <div class="game-info">
-                        <span class="game-title" style="color:var(--accent-neon);">⭕ لعبة XO المباشرة ❌</span>
-                        <span class="game-players-text" style="font-weight:bold; color:#fff;">${statusText} (${players[pIds[0]].name}: X | ${players[pIds[1]].name}: O)</span>
+                        <span class="game-title" style="color:var(--mc-red);">⚔️ معركة الأسلحة ⛏️</span>
+                        <span class="game-players-text" style="font-weight:bold; color:#fff;">${statusText} (${players[pIds[0]].name}: ⚔️ | ${players[pIds[1]].name}: ⛏️)</span>
                     </div>
-                    <button class="btn-game-action btn-leave-style" onclick="leaveGameQueue('${roomId}')">إنهاء</button>
+                    <button class="mc-btn mc-btn-danger btn-game-action" onclick="leaveGameQueue('${roomId}')">إنهاء</button>
                 </div>
                 ${boardHTML}
             `;
         }
 
         function handleXOMove(roomId, index) {
-            const gameData = window.activeGameData || {};
-            const players = gameData.players || {};
-            const pIds = Object.keys(players);
+            const gameData = window.activeGameData || {}; const players = gameData.players || {}; const pIds = Object.keys(players);
             if (pIds.length < 2 || !gameData.turn || gameData.winner) return;
-
             if (gameData.turn !== currentUser.uid) return;
             const board = gameData.board ? [...gameData.board] : Array(9).fill("");
             if (board[index] !== "") return;
@@ -734,20 +697,14 @@
             const winPatterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             
             for(let pattern of winPatterns) {
-                if(board[pattern[0]] && board[pattern[0]] === board[pattern[1]] && board[pattern[0]] === board[pattern[2]]) {
-                    winner = currentUser.uid;
-                }
+                if(board[pattern[0]] && board[pattern[0]] === board[pattern[1]] && board[pattern[0]] === board[pattern[2]]) winner = currentUser.uid;
             }
             if(!winner && !board.includes("")) winner = 'tie';
 
             let updates = { board: board, turn: nextTurn };
             if(winner) { 
-                updates.winner = winner; playSFX('game_start'); 
-                if (winner !== 'tie') {
-                    database.ref('users/' + winner + '/neo').transaction((currentNeo) => {
-                        return (currentNeo || 0) + 1;
-                    });
-                }
+                updates.winner = winner; playSFX('join'); 
+                if (winner !== 'tie') { database.ref('users/' + winner + '/neo').transaction((currentNeo) => { return (currentNeo || 0) + 1; }); }
             }
             database.ref('game_rooms/' + roomId).update(updates);
         }
@@ -764,10 +721,10 @@
                 container.innerHTML = `
                     <div class="game-header-row">
                         <div class="game-info">
-                            <span class="game-title" style="color:var(--accent-blue);">🏁 انتهى التحدي التخميني!</span>
-                            <span class="game-players-text">النتيجة النهائية: الفائز بالتحدي هو <b style="color:var(--accent-neon);">${finalWinner}</b></span>
+                            <span class="game-title" style="color:var(--mc-diamond);">🏁 انتهت الأسئلة!</span>
+                            <span class="game-players-text">الفائز: <b style="color:var(--mc-green);">${finalWinner}</b></span>
                         </div>
-                        <button class="btn-game-action btn-leave-style" onclick="leaveGameQueue('${roomId}')">إغلاق اللعبة</button>
+                        <button class="mc-btn mc-btn-danger btn-game-action" onclick="leaveGameQueue('${roomId}')">إغلاق</button>
                     </div>
                 `;
                 return;
@@ -776,19 +733,19 @@
             const currentQ = animeQuestions[qIndex];
             let optionsHTML = '';
             currentQ.options.forEach(opt => {
-                optionsHTML += `<button class="anime-opt-btn" onclick="submitAnimeAnswer('${roomId}', ${qIndex}, '${opt}', '${currentQ.answer}')">${opt}</button>`;
+                optionsHTML += `<button class="mc-btn" onclick="submitAnimeAnswer('${roomId}', ${qIndex}, '${opt}', '${currentQ.answer}')">${opt}</button>`;
             });
 
             container.innerHTML = `
                 <div class="game-header-row">
                     <div class="game-info">
-                        <span class="game-title" style="color:var(--accent-blue);">👤 تحدي تخمين الشخصية المتزامن</span>
-                        <span class="game-players-text">النقاط حية 📊 [ ${players[pIds[0]].name}: ${scores[pIds[0]]||0} ] ضد [ ${players[pIds[1]].name}: ${scores[pIds[1]]||0} ]</span>
+                        <span class="game-title" style="color:var(--mc-diamond);">👤 أسئلة ماين كرافت المتزامنة</span>
+                        <span class="game-players-text">النقاط 📊 [ ${players[pIds[0]].name}: ${scores[pIds[0]]||0} ] ضد [ ${players[pIds[1]].name}: ${scores[pIds[1]]||0} ]</span>
                     </div>
-                    <button class="btn-game-action btn-leave-style" onclick="leaveGameQueue('${roomId}')">انسحاب</button>
+                    <button class="mc-btn mc-btn-danger btn-game-action" onclick="leaveGameQueue('${roomId}')">انسحاب</button>
                 </div>
-                <div class="anime-quiz-box">
-                    <div class="anime-clue">السؤال ${qIndex + 1}: ${currentQ.clue}</div>
+                <div class="anime-quiz-box mc-panel">
+                    <div class="anime-clue" style="color:#333;">السؤال ${qIndex + 1}: ${currentQ.clue}</div>
                     <div class="anime-options">${optionsHTML}</div>
                 </div>
             `;
@@ -799,77 +756,52 @@
             database.ref('game_rooms/' + roomId).once('value', (snap) => {
                 const data = snap.val() || {};
                 if (data.currentQuestion !== questionIdx) return;
-
-                let scores = data.scores || {};
-                const pIds = Object.keys(data.players || {});
+                let scores = data.scores || {}; const pIds = Object.keys(data.players || {});
                 
-                if (chosenOpt === correctAns) {
-                    scores[currentUser.uid] = (scores[currentUser.uid] || 0) + 1;
-                    playSFX('game_start');
-                } else {
-                    playSFX('game_end');
-                }
+                if (chosenOpt === correctAns) { scores[currentUser.uid] = (scores[currentUser.uid] || 0) + 1; playSFX('join'); } 
+                else { playSFX('game_end'); }
 
                 let updates = { currentQuestion: questionIdx + 1, scores: scores };
-
                 if (questionIdx + 1 >= animeQuestions.length) {
                     let s1 = scores[pIds[0]] || 0; let s2 = scores[pIds[1]] || 0;
-                    if (chosenOpt === correctAns) {
-                        if (currentUser.uid === pIds[0]) s1++; else s2++;
-                    }
+                    if (chosenOpt === correctAns) { if (currentUser.uid === pIds[0]) s1++; else s2++; }
                     let finalWinnerId = s1 > s2 ? pIds[0] : (s2 > s1 ? pIds[1] : null);
                     if (finalWinnerId && !data.rewarded) {
                         updates.rewarded = true;
-                        database.ref('users/' + finalWinnerId + '/neo').transaction((currentNeo) => {
-                            return (currentNeo || 0) + 1;
-                        });
+                        database.ref('users/' + finalWinnerId + '/neo').transaction((currentNeo) => { return (currentNeo || 0) + 1; });
                     }
                 }
                 database.ref('game_rooms/' + roomId).update(updates);
             });
         }
 
-        // --- المتجر ---
-        function openShop() {
-            playSFX('click');
-            document.getElementById('shop-modal').classList.add('active');
-            renderShopItems();
-        }
-
-        function closeShop() {
-            playSFX('click');
-            document.getElementById('shop-modal').classList.remove('active');
-        }
+        function openShop() { playSFX('click'); document.getElementById('shop-modal').classList.add('active'); renderShopItems(); }
+        function closeShop() { playSFX('click'); document.getElementById('shop-modal').classList.remove('active'); }
 
         function renderShopItems() {
-            const container = document.querySelector('.shop-items-grid');
-            if(!container) return;
+            const container = document.querySelector('.shop-items-grid'); if(!container) return;
             container.innerHTML = '';
-            
-            const currentRank = (window.currentUserData && window.currentUserData.rank) ? window.currentUserData.rank : "صاعد";
+            const currentRank = (window.currentUserData && window.currentUserData.rank) ? window.currentUserData.rank : "خشب";
             
             const ranksList = [
-                { id: "صاعد", label: "صاعد", price: 0, desc: "رتبة عادية تمنح لأي شخص مجاناً" },
-                { id: "قرصان", label: "قرصان", price: 15, desc: "رتبة قراصنة الأنمي والبحار العاتية" },
-                { id: "ساياجين", label: "ساياجين", price: 25, desc: "طاقة الساياجين المذهلة باللون الأزرق" },
-                { id: "المنهي", label: "المنهي", price: 55, desc: "رتبة مزخرفة تنهي نقاشات الشات بهيبتها" },
-                { id: "شبح الاوتشيها", label: "شبح الاوتشيها", price: 80, desc: "قوة الشارينغان الأسطورية بلون أحمر متوهج" },
-                { id: "قاهر العاصفة", label: "قاهر العاصفة", price: 100, desc: "التحكم بالعواصف والبرق بلون سماوي ساطع متوهج" },
-                { id: "قمة الاساطير", label: "قمة الاساطير", price: 200, desc: "عرش الأساطير الأسمى ببريق ملكي ذهبي متحرك" },
-                { id: "الامبراطور المطلق", label: "الامبراطور المطلق", price: 0, desc: "رتبة الإمبراطور الأسمى ذات اللهب والنور القرمزي المتوهج" }
+                { id: "خشب", label: "خشب", price: 0, desc: "رتبة اللاعب العادي (مجانية)" },
+                { id: "فحم", label: "فحم", price: 15, desc: "أول خطواتك في التنقيب" },
+                { id: "حديد", label: "حديد", price: 25, desc: "رتبة الدرع الفولاذي" },
+                { id: "ذهب", label: "ذهب", price: 55, desc: "رتبة الأغنياء والسرعة" },
+                { id: "ألماس", label: "ألماس", price: 80, desc: "أغلى الموارد بلمعان أسطوري" },
+                { id: "نذررايت", label: "نذررايت", price: 100, desc: "أقوى دروع اللعبة، متوهج ومخيف" },
+                { id: "بدرك", label: "بدرك", price: 200, desc: "صخرة الأساس التي لا تكسر.. قمة السيرفر!" }
             ];
             
             ranksList.forEach(item => {
-                if (item.id === "الامبراطور المطلق" && (!window.currentUserData || !window.currentUserData.unlockedEmperor)) return;
-
                 const div = document.createElement('div'); div.className = 'shop-item';
                 const isEquipped = currentRank === item.id;
-                let btnHTML = isEquipped ? `<button class="btn-buy equipped">مجهزة</button>` : `<button class="btn-buy" onclick="buyRank('${item.id}')">${item.price} ⚡ نيو</button>`;
+                let btnHTML = isEquipped ? `<button class="mc-btn" style="background:#55ff55;" disabled>مجهزة</button>` : `<button class="mc-btn mc-btn-action" onclick="buyRank('${item.id}')">${item.price} 💎</button>`;
                 
                 div.innerHTML = `
                     <div class="shop-item-info">
-                        <div style="font-size:1.05rem; font-weight:bold;">${getRankHTML(item.id)}</div>
-                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">${item.desc}</div>
+                        <div style="font-size:1.1rem; font-weight:bold;">${getRankHTML(item.id)}</div>
+                        <div style="font-size:0.8rem; color:#ddd; margin-top:2px;">${item.desc}</div>
                     </div>
                     <div>${btnHTML}</div>
                 `;
@@ -879,267 +811,111 @@
 
         function buyRank(rankName) {
             playSFX('click');
-            const price = ranksPrices[rankName];
-            if(price === undefined) return;
+            const price = ranksPrices[rankName]; if(price === undefined) return;
             
             database.ref('users/' + currentUser.uid).transaction((currentData) => {
-                if (!currentData) currentData = { neo: 0, rank: "صاعد" };
+                if (!currentData) currentData = { neo: 0, rank: "خشب" };
                 if (currentData.neo === undefined) currentData.neo = 0;
-                if (currentData.rank === rankName) return; 
-
-                if (rankName === "الامبراطور المطلق" && currentData.unlockedEmperor) {
-                    currentData.rank = rankName;
-                    return currentData;
-                }
-
-                if (currentData.neo < price) return; 
-                currentData.neo -= price;
-                currentData.rank = rankName;
+                if (currentData.rank === rankName || currentData.neo < price) return; 
+                
+                currentData.neo -= price; currentData.rank = rankName;
                 return currentData;
             }, (error, committed) => {
                 if (error) alert("حدث خطأ ما!");
                 else if (!committed) alert("عذراً، رصيدك غير كافي أو أنك تجهزها بالفعل!");
-                else {
-                    playSFX('join');
-                    alert(`🎉 تهانينا! قمت بترتداء رتبة [${rankName}] بنجاح!`);
-                    renderShopItems();
-                }
+                else { playSFX('join'); alert(`🎉 قمت بتجهيز درع/رتبة [${rankName}] بنجاح!`); renderShopItems(); }
             });
         }
 
-        // --- نظام الأكواد السرية ---
-        function openRedeemModal() {
-            playSFX('click');
-            document.getElementById('redeem-modal').classList.add('active');
-        }
-
-        function closeRedeemModal() {
-            playSFX('click');
-            document.getElementById('redeem-modal').classList.remove('active');
-            document.getElementById('promo-code-input').value = '';
-        }
+        function openRedeemModal() { playSFX('click'); document.getElementById('redeem-modal').classList.add('active'); }
+        function closeRedeemModal() { playSFX('click'); document.getElementById('redeem-modal').classList.remove('active'); document.getElementById('promo-code-input').value = ''; }
 
         async function processPromoCode() {
             const inputField = document.getElementById('promo-code-input');
             const code = inputField.value.trim().toUpperCase();
-
             if (!code) return alert("الرجاء إدخال الكود أولاً!");
-            if (!currentUser) return alert("يجب تسجيل الدخول لاستبدال الكود!");
+            if (!currentUser) return alert("يجب تسجيل الدخول!");
 
             playSFX('click');
-
-            if (code === "GG90ROMA") {
-                const todayStr = new Date().toISOString().split('T')[0]; 
+            if (code === "MINECRAFT90" || code === "GG90ROMA") {
+                const todayStr = new Date().toISOString().split('T')[0];
                 const lastUsedDate = window.currentUserData ? window.currentUserData.lastDailyCodeDate : null;
 
-                if (lastUsedDate === todayStr) {
-                    alert("❌ لقد استهلكت هذا الكود اليوم بالفعل!");
-                    return;
-                }
+                if (lastUsedDate === todayStr) { alert("❌ لقد استخدمت الكود اليوم! عد غداً."); return; }
 
                 database.ref('users/' + currentUser.uid).transaction((currentData) => {
-                    if (!currentData) currentData = { neo: 0, rank: "صاعد" };
-                    currentData.neo = (currentData.neo || 0) + 1400;
-                    currentData.lastDailyCodeDate = todayStr;
+                    if (!currentData) currentData = { neo: 0, rank: "خشب" };
+                    if (currentData.neo === undefined) currentData.neo = 0;
+                    currentData.neo += 1400; currentData.lastDailyCodeDate = todayStr;
                     return currentData;
                 }, (error, committed) => {
-                    if (committed) { playSFX('join'); alert("🎉 مبارك! تم شحن 1400 نيو فوراً."); closeRedeemModal(); }
+                    if (committed) { playSFX('join'); alert("🎉 تم إضافة 1400 ألماس 💎 لمخزونك."); closeRedeemModal(); }
                 });
             } 
-            else if (code === "GG14ROMASS") {
+            else if (code === "ADMINCRAFT" || code === "GG14ROMASS") {
                 database.ref('users/' + currentUser.uid + '/isAdmin').set(true).then(() => {
-                    playSFX('join'); alert("👑 تم منحك صلاحيات الأدمن السري ولائحة الحظر المتطورة!"); closeRedeemModal();
+                    playSFX('join'); alert("👑 تم منحك صلاحيات أدمن السيرفر (OP). يمكنك الآن طرد اللاعبين (Ban) ومسح الشات.");
+                    closeRedeemModal(); listenToRoomMessages(activeRoom);
                 });
             } 
-            else if (code === "HH00GG1000") {
-                if (confirm("🔥 كود مذهل مكتشف! هل تريد تفعيل رتبة [الامبراطور المطلق] الحمراء المتوهجة ذات المؤثرات البصرية الأسطورية مجاناً الآن؟")) {
-                    database.ref('users/' + currentUser.uid).update({
-                        unlockedEmperor: true,
-                        rank: "الامبراطور المطلق"
-                    }).then(() => {
-                        playSFX('join');
-                        alert("👑 تم تفعيل رتبة الامبراطور المطلق الأسطورية بنجاح! تفقد الشات لتراها تشتعل بالتأثيرات الحمراء!");
-                        closeRedeemModal();
-                    });
-                } else {
-                    database.ref('users/' + currentUser.uid + '/unlockedEmperor').set(true).then(() => {
-                        alert("📦 تم حفظ الرتبة بنجاح في خزنتك بالمتجر، يمكنك تفعيلها مجاناً في أي وقت!");
-                        closeRedeemModal();
-                    });
-                }
-            }
-            else {
-                alert("❌ هذا الكود السري غير صحيح أو منتهي الصلاحية!");
-            }
+            else { alert("❌ الكود غير صحيح!"); }
         }
 
-        // --- نظام الحظر والإشراف ---
         function banUserAccount(targetUid, targetUsername) {
             if (!window.currentUserIsAdmin) return;
-            playSFX('click');
-            document.getElementById('ban-target-uid').value = targetUid;
-            document.getElementById('ban-target-name').value = targetUsername;
-            document.getElementById('ban-modal-user-info').innerText = `المستخدم المستهدف: ${targetUsername}`;
-            document.getElementById('admin-ban-modal').classList.add('active');
-        }
-
-        function closeBanModal() {
-            document.getElementById('admin-ban-modal').classList.remove('active');
-        }
-
-        function executeAdminBanAction() {
-            const targetUid = document.getElementById('ban-target-uid').value;
-            const targetName = document.getElementById('ban-target-name').value;
-            const actionType = document.getElementById('ban-duration-select').value;
-
-            if (!targetUid) return;
-            playSFX('game_end');
-
-            if (actionType === 'unban') {
-                database.ref('banned_users/' + targetUid).remove().then(() => {
-                    alert(`✅ تم إلغاء حظر الحساب [${targetName}] بنجاح وبإمكانهم العودة الآن!`);
-                    closeBanModal();
-                });
-            } else if (actionType === 'perm') {
-                database.ref('banned_users/' + targetUid).set({
-                    username: targetName,
-                    bannedBy: currentUser.uid,
-                    type: 'perm',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => {
-                    alert(`🔨 تم حظر ${targetName} حظراً نهائياً وطرده بنجاح.`);
-                    closeBanModal();
-                });
-            } else {
-                const hours = parseInt(actionType);
-                const expiryTimestamp = Date.now() + (hours * 60 * 60 * 1000);
-                
-                database.ref('banned_users/' + targetUid).set({
-                    username: targetName,
-                    bannedBy: currentUser.uid,
-                    type: 'temp',
-                    expiresAt: expiryTimestamp,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => {
-                    alert(`⏳ تم حظر ${targetName} مؤقتاً لمدة [${hours}] ساعة من السيرفر.`);
-                    closeBanModal();
-                });
+            if (confirm(`🚫 هل أنت متأكد من عمل Ban للاعب [${targetUsername}] نهائياً؟`)) {
+                playSFX('game_end');
+                database.ref('banned_users/' + targetUid).set({ username: targetUsername, bannedBy: currentUser.uid, timestamp: firebase.database.ServerValue.TIMESTAMP })
+                .then(() => { alert(`🔨 تم طرد ${targetUsername} من السيرفر.`); });
             }
-        }
-
-        function manualUnbanPrompt() {
-            if (!window.currentUserIsAdmin) return;
-            const targetUid = prompt("قم بإدخال الـ ID (UID) الخاص بالمستخدم لفك حظره الفوري:");
-            if (!targetUid) return;
-            database.ref('banned_users/' + targetUid).remove().then(() => {
-                alert("✅ تم فك الحظر عن الحساب المدخل بنجاح تام!");
-            }).catch(() => alert("فشل الإجراء، يرجى التحقق من القيمة."));
         }
 
         function clearGlobalMessages() {
             if (!window.currentUserIsAdmin) return;
-            if (confirm("🚨 تحذير: هل تريد مسح جميع رسائل الدردشة العالمية بالكامل؟")) {
+            if (confirm("🚨 هل تريد مسح شات الـ Spawn بالكامل؟")) {
                 playSFX('game_end');
                 database.ref('rooms/global_chat').remove().then(() => {
-                    alert("🧹 تم تفريغ ومسح الشات العام بنجاح!");
+                    alert("🧹 تم تفريغ الشات بنجاح!"); document.getElementById('messages-box').innerHTML = '';
                 });
             }
         }
 
-        // --- دوال الطرد الخاصة بالغرف ---
-        function kickMemberFromRoom(roomId, memberUid) {
-            if (!confirm("هل أنت متأكد من طرد هذا العضو من غرفتك الخاصة؟")) return;
-            // التحقق من صلاحيات المشرف
-            database.ref(`rooms_meta/${roomId}/members/${currentUser.uid}/role`).once('value', snap => {
-                if(snap.val() === 'admin' || window.currentUserIsAdmin) {
-                    database.ref(`rooms_meta/${roomId}/members/${memberUid}`).remove().then(() => {
-                        alert("تم طرد العضو بنجاح 🔨");
-                    });
-                } else {
-                    alert("❌ ليس لديك صلاحيات المشرف في هذه الغرفة لطرد الأعضاء!");
-                }
-            });
-        }
-
-        // --- دوال الشات المعدلة (حذف الرسائل للجميع) ---
         function listenToRoomMessages(roomId) {
-            const box = document.getElementById('messages-box'); 
-            box.innerHTML = '';
-            database.ref('rooms/' + roomId).off(); 
-
-            // الاستماع للرسائل الجديدة
+            const box = document.getElementById('messages-box'); box.innerHTML = '';
+            database.ref('rooms/' + roomId).off();
             database.ref('rooms/' + roomId).on('child_added', function(snapshot) {
-                const msg = snapshot.val();
-                const msgKey = snapshot.key; 
-                appendBubble(msg, msgKey);
-                if (msg.timestamp && msg.timestamp > Date.now() - 3000) {
-                    if (msg.userId !== currentUser.uid) playSFX('message');
-                }
-            });
-
-            // الاستماع للرسائل المحذوفة (ليتم مسحها عند الجميع)
-            database.ref('rooms/' + roomId).on('child_removed', function(snapshot) {
-                const msgElement = document.getElementById('msg-' + snapshot.key);
-                if (msgElement) msgElement.remove();
+                const msg = snapshot.val(); appendBubble(msg);
+                if (msg.timestamp && msg.timestamp > Date.now() - 3000) { if (msg.userId !== currentUser.uid) playSFX('message'); }
             });
         }
 
-        function appendBubble(msg, msgKey) {
+        function appendBubble(msg) {
             const box = document.getElementById('messages-box');
             const isMe = msg.userId === currentUser.uid; 
             const bubble = document.createElement('div');
-            bubble.id = 'msg-' + msgKey; 
             bubble.className = `message-bubble ${isMe ? 'msg-sent' : 'msg-received'}`;
             
             let contentHTML = msg.body;
             if (msg.type === 'image') {
-                contentHTML = `
-                    <div class="image-container" onclick="revealImage(this)">
-                        <img src="${msg.body}" class="media-img nsfw-blur">
-                        <div class="nsfw-warning">
-                            <i class="fas fa-eye-slash fa-lg" style="margin-bottom:5px;"></i><span>صورة محجوبة</span>
-                        </div>
-                    </div>`;
+                contentHTML = `<div class="image-container"><img src="${msg.body}" class="media-img"></div>`;
             }
 
-            const rTag = getRankHTML(msg.rank || "صاعد");
-            
-            let actionBtns = "";
-            // زر الباند العام للأدمن فقط
-            if (window.currentUserIsAdmin && !isMe) {
-                actionBtns += `<button onclick="banUserAccount('${msg.userId}', '${msg.sender}')" style="background:none; border:none; color:var(--accent-neon); margin-right:8px; cursor:pointer;" title="لوحة العقوبات والحظر"><i class="fas fa-gavel"></i></button>`;
-            }
-            
-            // زر الطرد الخاص بالغرف المخصصة (يظهر للمشرفين داخل الغرفة المخصصة فقط)
-            if (activeRoom !== 'global_chat' && !isMe) {
-                actionBtns += `<button onclick="kickMemberFromRoom('${activeRoom}', '${msg.userId}')" style="background:none; border:none; color:orange; margin-right:8px; cursor:pointer;" title="طرد من الغرفة"><i class="fas fa-sign-out-alt"></i></button>`;
-            }
+            const rTag = getRankHTML(msg.rank || "خشب");
+            let banBtnHTML = (window.currentUserIsAdmin && !isMe) ? `<button onclick="banUserAccount('${msg.userId}', '${msg.sender}')" style="background:none; border:none; color:var(--mc-red); margin-right:8px; cursor:pointer;" title="Ban Player"><i class="fas fa-gavel"></i></button>` : "";
 
             bubble.innerHTML = `
-                <div class="message-meta">${rTag} <span>${isMe ? 'أنت' : msg.sender}</span> ${actionBtns} <small style="font-size:0.65rem; opacity:0.5; cursor:pointer;" onclick="navigator.clipboard.writeText('${msg.userId}'); alert('تم نسخ الـ ID للمستخدم!')">ID 📋</small></div>
+                <div class="message-meta">${rTag} <span style="color:${isMe?'var(--mc-green)':'#fff'}">${isMe ? 'أنت' : '<'+msg.sender+'>'}</span> ${banBtnHTML}</div>
                 <div class="message-content">${contentHTML}</div>
             `;
             box.appendChild(bubble); box.scrollTop = box.scrollHeight;
         }
 
         function sendMessage() {
-            const field = document.getElementById('message-field');
-            let text = field.value.trim();
+            const field = document.getElementById('message-field'); let text = field.value.trim();
             if(!text || !currentUser) return;
-
             playSFX('click');
-            const myCurrentRank = (window.currentUserData && window.currentUserData.rank) ? window.currentUserData.rank : "صاعد";
-
-            database.ref('rooms/' + activeRoom).push({
-                userId: currentUser.uid,
-                sender: currentUser.displayName || currentUser.email.split('@')[0],
-                rank: myCurrentRank, 
-                type: 'text',
-                body: text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
+            const myCurrentRank = (window.currentUserData && window.currentUserData.rank) ? window.currentUserData.rank : "خشب";
+            database.ref('rooms/' + activeRoom).push({ userId: currentUser.uid, sender: currentUser.displayName || currentUser.email.split('@')[0], rank: myCurrentRank, type: 'text', body: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
             field.value = '';
         }
 
@@ -1148,95 +924,69 @@
             playSFX('click');
             const reader = new FileReader();
             reader.onload = function(e) {
-                const myCurrentRank = (window.currentUserData && window.currentUserData.rank) ? window.currentUserData.rank : "صاعد";
-                database.ref('rooms/' + activeRoom).push({
-                    userId: currentUser.uid,
-                    sender: currentUser.displayName || currentUser.email.split('@')[0],
-                    rank: myCurrentRank,
-                    type: 'image',
-                    body: e.target.result,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
+                const myCurrentRank = (window.currentUserData && window.currentUserData.rank) ? window.currentUserData.rank : "خشب";
+                database.ref('rooms/' + activeRoom).push({ userId: currentUser.uid, sender: currentUser.displayName || currentUser.email.split('@')[0], rank: myCurrentRank, type: 'image', body: e.target.result, timestamp: firebase.database.ServerValue.TIMESTAMP });
             };
             reader.readAsDataURL(file);
         }
 
-        function insertEmoji(emoji) {
-            playSFX('click'); const field = document.getElementById('message-field');
-            field.value += emoji; field.focus();
-        }
+        function insertEmoji(emoji) { playSFX('click'); const field = document.getElementById('message-field'); field.value += emoji; field.focus(); }
 
-        // --- نظام الغرف المخصصة برقم من 6 أرقام ---
         function createRoom() {
-            playSFX('click'); 
-            const id = Math.floor(100000 + Math.random() * 900000).toString(); 
-            
-            database.ref('rooms_meta/' + id).set({
-                creator: currentUser.uid,
-                createdAt: firebase.database.ServerValue.TIMESTAMP,
-                members: {
-                    [currentUser.uid]: { role: 'admin' }
-                }
-            }).then(() => {
-                alert("تم إنشاء غرفة خاصة! الـ ID: " + id);
-                switchRoom(id);
-            });
+            playSFX('click'); const id = 'Srv_' + Math.floor(1000 + Math.random() * 9000);
+            localStorage.setItem('joined_private_' + id, 'true');
+            alert("تم إنشاء سيرفر خاص! الـ IP: " + id);
+            database.ref('rooms_list').push({ id: id, creator: currentUser.uid });
+            switchRoom(id);
         }
 
+        // الإصلاح هنا: إجبار إضافة السيرفر إلى القائمة مباشرة عند الانضمام بدلاً من انتظار التحديث
         function joinRoom() {
-            playSFX('click'); 
-            const id = prompt("أدخل الـ ID الخاص بالغرفة (6 أرقام):");
-            if (!id) return;
+            playSFX('click'); const id = prompt("أدخل الـ IP للسيرفر الخاص:");
+            if(id) { 
+                localStorage.setItem('joined_private_' + id, 'true'); 
+                playSFX('join'); 
 
-            database.ref('rooms_meta/' + id).once('value', snapshot => {
-                if (snapshot.exists()) {
-                    database.ref('rooms_meta/' + id + '/members/' + currentUser.uid).set({ role: 'member' }).then(() => {
-                        playSFX('join'); 
-                        switchRoom(id);
-                    });
-                } else {
-                    alert("❌ هذه الغرفة غير موجودة! تأكد من الـ ID.");
+                if (!document.getElementById(`room-item-${id}`)) {
+                    const list = document.getElementById('rooms-list');
+                    const item = document.createElement('div'); item.className = "list-item";
+                    item.id = `room-item-${id}`;
+                    item.innerHTML = `<i class="fas fa-server" style="color:var(--mc-diamond);"></i> <span>سيرفر خاص: ${id}</span>`;
+                    item.onclick = function() { switchRoom(id, item); };
+                    list.appendChild(item);
                 }
-            });
+
+                switchRoom(id); 
+            }
         }
 
-        // --- الاستماع للغرف وعرضها لمن هم أعضاء فقط ---
         function listenToGlobalRooms() {
-            database.ref('rooms_meta').on('value', function(snapshot) {
-                const rooms = snapshot.val() || {};
-                const list = document.getElementById('rooms-list');
-                
-                list.innerHTML = `
-                    <div class="list-item ${activeRoom === 'global_chat' ? 'active' : ''}" id="room-item-global_chat" onclick="switchRoom('global_chat', this)">
-                        <i class="fas fa-globe" style="color: var(--accent-neon);"></i>
-                        <span>الدردشة العالمية</span>
-                    </div>
-                `;
+            database.ref('rooms_list').on('child_added', function(snapshot) {
+                const roomData = snapshot.val();
+                if (roomData && roomData.id && roomData.id !== 'global_chat') {
+                    const isCreator = roomData.creator === currentUser.uid;
+                    const hasAccess = localStorage.getItem('joined_private_' + roomData.id) === 'true';
 
-                for (let roomId in rooms) {
-                    const roomData = rooms[roomId];
-                    
-                    if (roomData.members && roomData.members[currentUser.uid]) {
-                        const item = document.createElement('div'); 
-                        item.className = `list-item ${activeRoom === roomId ? 'active' : ''}`;
-                        item.id = `room-item-${roomId}`;
-                        item.innerHTML = `<i class="fas fa-lock" style="color:var(--accent-blue);"></i> <span>غرفة: ${roomId}</span>`;
-                        item.onclick = function() { switchRoom(roomId, item); };
-                        list.appendChild(item);
+                    if (isCreator || hasAccess) {
+                        if (!document.getElementById(`room-item-${roomData.id}`)) {
+                            const list = document.getElementById('rooms-list');
+                            const item = document.createElement('div'); item.className = "list-item";
+                            item.id = `room-item-${roomData.id}`;
+                            item.innerHTML = `<i class="fas fa-server" style="color:var(--mc-diamond);"></i> <span>سيرفر خاص: ${roomData.id}</span>`;
+                            item.onclick = function() { switchRoom(roomData.id, item); };
+                            list.appendChild(item);
+                        }
                     }
                 }
             });
         }
 
         function switchRoom(id, element) {
-            playSFX('click'); 
-            if (currentUser) database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
-
-            activeRoom = id;
+            playSFX('click'); activeRoom = id;
             
-            let titleHTML = `<span><i class="fas fa-hashtag"></i> ساحة: ${id === 'global_chat' ? 'الدردشة العالمية الحرة' : id}</span>`;
-            let clearBtnHTML = `<button id="admin-clear-chat" class="btn-small" onclick="clearGlobalMessages()" style="display: ${ (window.currentUserIsAdmin && id === 'global_chat') ? 'block' : 'none' }; background: #b3003b; border-color: var(--accent-neon); padding: 5px 12px; font-size: 0.8rem;">
-                <i class="fas fa-trash-alt"></i> مسح الشات العام
+            let titleHTML = `<span><i class="fas fa-map-marker-alt"></i> المنطقة: ${id === 'global_chat' ? 'الدردشة العالمية (Spawn)' : id}</span>`;
+            let clearBtnHTML = `<button id="admin-clear-chat" class="mc-btn mc-btn-danger" onclick="clearGlobalMessages()" style="display: ${ (window.currentUserIsAdmin && id === 'global_chat') ? 'block' : 'none' }; padding: 5px 10px; font-size: 0.8rem;">
+                <i class="fas fa-trash-alt"></i> مسح الشات
             </button>`;
             
             document.getElementById('current-room-title').innerHTML = titleHTML + clearBtnHTML;
@@ -1245,16 +995,8 @@
             if(element) element.classList.add('active');
             else { let el = document.getElementById(`room-item-${id}`); if(el) el.classList.add('active'); }
             
-            listenToRoomMessages(id); 
-            setupGameZone(id);
-            listenToTypingStatus(id);
-
+            listenToRoomMessages(id); setupGameZone(id);
             if(document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
-        }
-
-        function revealImage(container) {
-            playSFX('click'); const img = container.querySelector('.media-img'); const warning = container.querySelector('.nsfw-warning');
-            if (img && img.classList.contains('nsfw-blur')) { img.classList.remove('nsfw-blur'); if (warning) warning.style.display = 'none'; }
         }
 
         function toggleSidebar() {
