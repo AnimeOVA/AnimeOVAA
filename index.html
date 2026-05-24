@@ -128,7 +128,7 @@
         .msg-sent { align-self: flex-end; }
         .msg-sent .message-content { background: var(--accent-neon); color: white; border-bottom-left-radius: 4px; }
 
-        /* نافذة المتجر الفاخرة */
+        /* نافذة المتجر الفاخرة ونوافذ التحكم */
         .shop-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(10, 10, 18, 0.95); z-index: 999; justify-content: center; align-items: center; padding: 20px;
@@ -167,17 +167,33 @@
             50% { text-shadow: 0 0 22px #fff, 0 0 32px #ffd700, 0 0 42px #ffaa00; filter: brightness(1.3); }
             100% { text-shadow: 0 0 8px #ffd700, 0 0 15px #ffaa00; filter: brightness(1); }
         }
+        @keyframes emperorPulse {
+            0% { text-shadow: 0 0 6px #ff0000, 0 0 12px #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
+            50% { text-shadow: 0 0 20px #ff0033, 0 0 30px #ff0000, 0 0 40px #ff0055; box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
+            100% { text-shadow: 0 0 6px #ff0000, 0 0 12px #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
+        }
 
         .rank-glow-uchiha { animation: uchihaPulse 1.2s infinite alternate; font-weight: 900; }
         .rank-glow-storm { animation: stormPulse 1s infinite alternate; font-weight: 900; }
         .rank-glow-legend { animation: legendSparkle 1.4s infinite ease-in-out; font-weight: 900; }
+        .rank-glow-emperor { animation: emperorPulse 0.8s infinite alternate; font-weight: 900; color: #ff0033 !important; border: 1px solid #ff0000 !important; background: rgba(255, 0, 0, 0.15) !important; }
 
         .image-container { position: relative; display: inline-block; max-width: 100%; margin-top: 5px; cursor: pointer; }
         .media-img { max-width: 100%; max-height: 200px; border-radius: 12px; display: block; }
         .nsfw-blur { filter: blur(20px); transition: filter 0.4s ease; }
         .nsfw-warning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 18, 0.88); display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--accent-neon); font-size: 0.85rem; font-weight: bold; text-align: center; border-radius: 12px; }
 
-        /* شريط الكتابة */
+        /* شريط الكتابة ومؤشر الـ Typing */
+        #typing-indicator-box { padding: 4px 20px; min-height: 25px; display: flex; align-items: center; gap: 8px; background: transparent; }
+        .typing-indicator-dots { display: flex; align-items: center; gap: 4px; }
+        .typing-indicator-dots span { width: 6px; height: 6px; background-color: var(--accent-blue); border-radius: 50%; display: inline-block; animation: typingBounce 1.4s infinite ease-in-out both; }
+        .typing-indicator-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
         .input-bar { padding: 12px 15px; background: var(--bg-panel); border-top: 2px solid var(--bg-item); display: flex; gap: 10px; align-items: center; }
         .input-bar input { flex: 1; padding: 14px 20px; background: var(--bg-main); border: 1px solid var(--bg-item); border-radius: 30px; color: white; outline: none; }
         .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; }
@@ -215,6 +231,31 @@
                 <input type="text" id="promo-code-input" placeholder="أدخل الكود السري هنا..." style="text-align: center; text-transform: uppercase;">
             </div>
             <button class="btn-action" onclick="processPromoCode()">تأكيد الاستبدال ⚡</button>
+        </div>
+    </div>
+
+    <div class="shop-modal" id="admin-ban-modal">
+        <div class="shop-content" style="max-width: 420px; border-color: var(--accent-neon); box-shadow: var(--shadow-neon);">
+            <div class="shop-header">
+                <h3><i class="fas fa-gavel" style="color: var(--accent-neon);"></i> لوحة التحكم بالعقوبات برمجياً</h3>
+                <button class="close-shop" onclick="closeBanModal()">&times;</button>
+            </div>
+            <div id="ban-modal-user-info" style="margin: 15px 0; text-align: center; font-weight: bold; color: var(--accent-blue); font-size: 1.05rem;"></div>
+            <input type="hidden" id="ban-target-uid">
+            <input type="hidden" id="ban-target-name">
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; margin-bottom:8px; font-size:0.95rem; color:var(--text-muted);">اختر الإجراء أو مدة الحظر الحية:</label>
+                <select id="ban-duration-select" style="width:100%; padding:12px; background:var(--bg-main); border:1px solid var(--bg-item); color:white; border-radius:10px; font-weight:bold; outline:none;">
+                    <option value="1">ساعة واحدة (1 Hour)</option>
+                    <option value="24">24 ساعة (يوم كامل)</option>
+                    <option value="144">6 أيام متتالية</option>
+                    <option value="8760">سنة كاملة (365 يوم)</option>
+                    <option value="perm">🚨 باند نهائي ومطلق</option>
+                    <option value="unban">✅ فك الحظر عن الحساب الآن</option>
+                </select>
+            </div>
+            <button class="btn-action" onclick="executeAdminBanAction()">تطبيق القرار على السيرفر 🔨</button>
         </div>
     </div>
 
@@ -261,6 +302,10 @@
                     <i class="fas fa-ticket-alt"></i> استبدال اكواد
                 </button>
 
+                <button id="admin-manual-unban-btn" class="btn-small" onclick="manualUnbanPrompt()" style="display: none; width: 100%; margin-bottom: 15px; background: #22c55e; color: #fff; font-weight: bold;">
+                    <i class="fas fa-unlock"></i> إلغاء حظر يدوي بالـ ID
+                </button>
+
                 <div class="room-actions">
                     <button class="btn-small" onclick="createRoom()"><i class="fas fa-plus"></i> إنشاء غرفة</button>
                     <button class="btn-small" onclick="joinRoom()"><i class="fas fa-sign-in-alt"></i> دخول بـ ID</button>
@@ -284,7 +329,10 @@
                 <div class="chat-info-bar" id="current-room-title">
                     <span><i class="fas fa-hashtag"></i> الغرفة العالمية الحرة</span>
                 </div>
+                
                 <div class="messages-container" id="messages-box"></div>
+
+                <div id="typing-indicator-box"></div>
 
                 <div class="input-bar">
                     <label class="icon-btn">
@@ -319,8 +367,10 @@
         let currentUser = null;
         let isLoginMode = true;
         let currentGameListener = null;
+        let typingTimeout = null;
+        let currentTypingListener = null;
 
-        const ranksPrices = { "صاعد": 0, "قرصان": 15, "ساياجين": 25, "المنهي": 55, "شبح الاوتشيها": 80, "قاهر العاصفة": 100, "قمة الاساطير": 200 };
+        const ranksPrices = { "صاعد": 0, "قرصان": 15, "ساياجين": 25, "المنهي": 55, "شبح الاوتشيها": 80, "قاهر العاصفة": 100, "قمة الاساطير": 200, "الامبراطور المطلق": 0 };
 
         const animeQuestions = [
             { clue: "صاحب مقولة 'سأصبح ملك القراصنة!' ومحب للحم 🍖", options: ["لوفي", "غوكو", "ناروتو"], answer: "لوفي" },
@@ -329,7 +379,6 @@
             { clue: "نائب قائد طاقم قبعة القش ومبارز مشهور بأسلوب الثلاثة سيوف والضياع ⚔️", options: ["زورو", "سانجي", "ميهوك"], answer: "زورو" }
         ];
 
-        // Web Audio API Effects
         document.body.addEventListener('click', function() {
             if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (window.audioCtx.state === 'suspended') window.audioCtx.resume();
@@ -360,7 +409,6 @@
             } catch (e) { console.log(e); }
         }
 
-        // إرجاع ستايل الرتبة بشكل دقيق
         function getRankHTML(rankName) {
             if (!rankName) rankName = "صاعد";
             const baseStyle = "padding: 2px 6px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; display: inline-block; border: 1px solid transparent;";
@@ -372,6 +420,7 @@
                 case "شبح الاوتشيها": return `<span class="rank-glow-uchiha" style="color: #ff0055; font-size:0.8rem;">⚡【شبح الأوتشيها】⚡</span>`;
                 case "قاهر العاصفة": return `<span class="rank-glow-storm" style="color: #00e5ff; font-size:0.8rem;">🌀【قاهر العاصفة】🌀</span>`;
                 case "قمة الاساطير": return `<span class="rank-glow-legend" style="color: #ffd700; font-size:0.85rem;">✨👑【قِمّة الأَسَاطِير】👑✨</span>`;
+                case "الامبراطور المطلق": return `<span class="rank-glow-emperor" style="font-size:0.85rem;">👑🔥【الإمبراطور المطلق】🔥👑</span>`;
                 default: return `<span style="${baseStyle} color: #fff;">(${rankName})</span>`;
             }
         }
@@ -411,11 +460,25 @@
             if (user) {
                 currentUser = user;
 
-                // نظام الحظر الصارم (تأمين التطبيق من المطرودين برمجياً)
+                // نظام الحظر المطور الصارم (التحقق من الحظر الدائم والمؤقت التلقائي)
                 database.ref('banned_users/' + user.uid).on('value', (banSnap) => {
                     if (banSnap.exists()) {
-                        alert("🚫 عذراً، لقد تم حظر حسابك نهائياً من دخول تطبيق ANIME OVA!");
-                        auth.signOut().then(() => { location.reload(); });
+                        const banData = banSnap.val();
+                        if (banData.type === 'perm') {
+                            alert("🚫 عذراً، لقد تم حظر حسابك نهائياً من دخول تطبيق ANIME OVA!");
+                            auth.signOut().then(() => { location.reload(); });
+                        } else if (banData.type === 'temp') {
+                            const now = Date.now();
+                            if (now < banData.expiresAt) {
+                                const timeLeft = banData.expiresAt - now;
+                                const hoursLeft = Math.ceil(timeLeft / (1000 * 60 * 60));
+                                alert(`🚫 عذراً، حسابك محظور مؤقتاً! الوقت المتبقي لانتهاء العقوبة: ${hoursLeft} ساعة تقريباً.`);
+                                auth.signOut().then(() => { location.reload(); });
+                            } else {
+                                // انتهاء مدة الباند المؤقت -> رفع الحظر تلقائياً
+                                database.ref('banned_users/' + user.uid).remove();
+                            }
+                        }
                     }
                 });
 
@@ -423,13 +486,13 @@
                 document.getElementById('app-screen').classList.add('active');
                 document.getElementById('user-display-name').innerText = user.displayName || user.email.split('@')[0];
                 
-                // الاستماع الاقتصادي لبيانات المستخدم
+                // الاستماع لبيانات حساب المستخدم
                 database.ref('users/' + user.uid).on('value', (snap) => {
                     let uData = snap.val() || {};
                     if (!uData.rank) uData.rank = "صاعد";
                     if (uData.neo === undefined) uData.neo = 0;
                     window.currentUserData = uData;
-                    window.currentUserIsAdmin = uData.isAdmin || false; // مزامنة صلاحية الأدمن السرية
+                    window.currentUserIsAdmin = uData.isAdmin || false;
 
                     document.getElementById('user-rank').innerHTML = getRankHTML(uData.rank);
                     
@@ -442,15 +505,20 @@
                     pNeo.innerHTML = `⚡ رصيدك: ${uData.neo} نيو`;
                     document.getElementById('shop-neo-balance').innerText = uData.neo;
 
-                    // تحديث فوري لزر مسح الشات العام إذا تغيرت الصلاحية أثناء التواجد في الغرفة العالمية
+                    // إظهار لوحة التحكم للأدمن
                     const clearBtn = document.getElementById('admin-clear-chat');
                     if (clearBtn) {
                         clearBtn.style.display = (window.currentUserIsAdmin && activeRoom === 'global_chat') ? 'block' : 'none';
+                    }
+                    const manualUnbanBtn = document.getElementById('admin-manual-unban-btn');
+                    if (manualUnbanBtn) {
+                        manualUnbanBtn.style.display = window.currentUserIsAdmin ? 'block' : 'none';
                     }
                 });
 
                 switchRoom(activeRoom);
                 listenToGlobalRooms();
+                setupTypingTracker();
             } else {
                 document.getElementById('auth-screen').classList.add('active');
                 document.getElementById('app-screen').classList.remove('active');
@@ -458,8 +526,52 @@
         });
 
         function logoutUser() {
+            if (currentUser) database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
             playSFX('game_end');
             auth.signOut().then(() => { location.reload(); });
+        }
+
+        // --- نظام مؤشر إشارة الكتابة المباشرة المتزامنة (Typing Tracker) ---
+        function setupTypingTracker() {
+            const msgField = document.getElementById('message-field');
+            msgField.addEventListener('input', () => {
+                if (!currentUser) return;
+                database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).set({
+                    name: currentUser.displayName || currentUser.email.split('@')[0],
+                    isTyping: true
+                });
+                
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                    if (currentUser) database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
+                }, 2000); // إزالة الحالة بعد ثانيتين من التوقف عن الضغط
+            });
+        }
+
+        function listenToTypingStatus(roomId) {
+            if (currentTypingListener) currentTypingListener.off();
+            currentTypingListener = database.ref(`typing_status/${roomId}`);
+            currentTypingListener.on('value', (snap) => {
+                const box = document.getElementById('typing-indicator-box');
+                if (!box) return;
+                const typers = snap.val() || {};
+                const activeTypers = [];
+                
+                for (let uid in typers) {
+                    if (currentUser && uid !== currentUser.uid && typers[uid].isTyping) {
+                        activeTypers.push(typers[uid].name);
+                    }
+                }
+                
+                if (activeTypers.length > 0) {
+                    box.innerHTML = `
+                        <div class="typing-indicator-dots"><span></span><span></span><span></span></div>
+                        <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight:bold;">${activeTypers.join(' و ')} يكتب الآن...</span>
+                    `;
+                } else {
+                    box.innerHTML = '';
+                }
+            });
         }
 
         // --- إدارة الألعاب والمزامنة التامة للمكافآت ---
@@ -559,7 +671,6 @@
             database.ref('game_rooms/' + roomId + '/votes/' + currentUser.uid).set(type);
         }
 
-        // معالجة الانسحاب وإعطاء الفائز 2 نيو فوراً
         function leaveGameQueue(roomId) {
             playSFX('game_end');
             database.ref('game_rooms/' + roomId).once('value', (snap) => {
@@ -579,7 +690,6 @@
             });
         }
 
-        // تشغيل لعبة الـ XO المتزامنة والمكافآت
         function renderRealXOGame(roomId, gameData, pIds, players) {
             const container = document.getElementById('game-zone-container');
             const board = gameData.board || Array(9).fill("");
@@ -645,7 +755,6 @@
             database.ref('game_rooms/' + roomId).update(updates);
         }
 
-        // تشغيل لعبة تخمين الأنمي وتوزيع المكافأة عند النهاية
         function renderRealAnimeGame(roomId, gameData, pIds, players) {
             const container = document.getElementById('game-zone-container');
             const qIndex = gameData.currentQuestion || 0;
@@ -749,10 +858,14 @@
                 { id: "المنهي", label: "المنهي", price: 55, desc: "رتبة مزخرفة تنهي نقاشات الشات بهيبتها" },
                 { id: "شبح الاوتشيها", label: "شبح الاوتشيها", price: 80, desc: "قوة الشارينغان الأسطورية بلون أحمر متوهج" },
                 { id: "قاهر العاصفة", label: "قاهر العاصفة", price: 100, desc: "التحكم بالعواصف والبرق بلون سماوي ساطع متوهج" },
-                { id: "قمة الاساطير", label: "قمة الاساطير", price: 200, desc: "عرش الأساطير الأسمى ببريق ملكي ذهبي متحرك" }
+                { id: "قمة الاساطير", label: "قمة الاساطير", price: 200, desc: "عرش الأساطير الأسمى ببريق ملكي ذهبي متحرك" },
+                { id: "الامبراطور المطلق", label: "الامبراطور المطلق", price: 0, desc: "رتبة الإمبراطور الأسمى ذات اللهب والنور القرمزي المتوهج" }
             ];
             
             ranksList.forEach(item => {
+                // منع ظهور رتبة الإمبراطور لغير الحاصلين عليها بالكود
+                if (item.id === "الامبراطور المطلق" && (!window.currentUserData || !window.currentUserData.unlockedEmperor)) return;
+
                 const div = document.createElement('div'); div.className = 'shop-item';
                 const isEquipped = currentRank === item.id;
                 let btnHTML = isEquipped ? `<button class="btn-buy equipped">مجهزة</button>` : `<button class="btn-buy" onclick="buyRank('${item.id}')">${item.price} ⚡ نيو</button>`;
@@ -776,8 +889,15 @@
             database.ref('users/' + currentUser.uid).transaction((currentData) => {
                 if (!currentData) currentData = { neo: 0, rank: "صاعد" };
                 if (currentData.neo === undefined) currentData.neo = 0;
-                if (currentData.rank === rankName || currentData.neo < price) return; 
-                
+                if (currentData.rank === rankName) return; 
+
+                // إذا كانت رتبة الإمبراطور مفتوحة بالكود، تخطي سعر الـ نيو
+                if (rankName === "الامبراطور المطلق" && currentData.unlockedEmperor) {
+                    currentData.rank = rankName;
+                    return currentData;
+                }
+
+                if (currentData.neo < price) return; 
                 currentData.neo -= price;
                 currentData.rank = rankName;
                 return currentData;
@@ -786,13 +906,13 @@
                 else if (!committed) alert("عذراً، رصيدك غير كافي أو أنك تجهزها بالفعل!");
                 else {
                     playSFX('join');
-                    alert(`🎉 تهانينا! قمت بشراء وارتداء رتبة [${rankName}] بنجاح!`);
+                    alert(`🎉 تهانينا! قمت بترتداء رتبة [${rankName}] بنجاح!`);
                     renderShopItems();
                 }
             });
         }
 
-        // --- التحكم بـ المودال السرية للأكواد ---
+        // --- التحكم بنافذة الأكواد السرية ---
         function openRedeemModal() {
             playSFX('click');
             document.getElementById('redeem-modal').classList.add('active');
@@ -804,7 +924,6 @@
             document.getElementById('promo-code-input').value = '';
         }
 
-        // دالة معالجة الأكواد البرمجية الفورية المشفرة
         async function processPromoCode() {
             const inputField = document.getElementById('promo-code-input');
             const code = inputField.value.trim().toUpperCase();
@@ -814,73 +933,125 @@
 
             playSFX('click');
 
-            // 1. الكود الأول: شحن 1400 نيو يومي
+            // 1. الكود اليومي القديم
             if (code === "GG90ROMA") {
-                const todayStr = new Date().toISOString().split('T')[0]; // صيغة YYYY-MM-DD الثابتة
+                const todayStr = new Date().toISOString().split('T')[0]; 
                 const lastUsedDate = window.currentUserData ? window.currentUserData.lastDailyCodeDate : null;
 
                 if (lastUsedDate === todayStr) {
-                    alert("❌ لقد استهلكت هذا الكود اليوم بالفعل! عد غداً للحصول على 1400 نيو جديدة.");
+                    alert("❌ لقد استهلكت هذا الكود اليوم بالفعل!");
                     return;
                 }
 
                 database.ref('users/' + currentUser.uid).transaction((currentData) => {
                     if (!currentData) currentData = { neo: 0, rank: "صاعد" };
-                    if (currentData.neo === undefined) currentData.neo = 0;
-
-                    currentData.neo += 1400;
-                    currentData.lastDailyCodeDate = todayStr; // تسجيل تاريخ اليوم
+                    currentData.neo = (currentData.neo || 0) + 1400;
+                    currentData.lastDailyCodeDate = todayStr;
                     return currentData;
                 }, (error, committed) => {
-                    if (error) {
-                        alert("حدث خطأ أثناء معالجة الكود.");
-                    } else if (committed) {
-                        playSFX('join');
-                        alert("🎉 مبارك! تم شحن 1400 نيو فوراً إلى رصيدك.");
-                        closeRedeemModal();
-                    }
+                    if (committed) { playSFX('join'); alert("🎉 مبارك! تم شحن 1400 نيو فوراً."); closeRedeemModal(); }
                 });
             } 
-            // 2. الكود الثاني: رتبة وميزات الأدمن السري الحية
+            // 2. كود صلاحيات المطور والأدمن
             else if (code === "GG14ROMASS") {
                 database.ref('users/' + currentUser.uid + '/isAdmin').set(true).then(() => {
-                    playSFX('join');
-                    alert("👑 تم منحك صلاحيات الأدمن السري بنجاح! ظهرت لك الآن أزرار طرد المشاغبين ومسح الشات.");
-                    closeRedeemModal();
-                    listenToRoomMessages(activeRoom); // إعادة بناء فوري لتحديث أزرار الباند في الشات الحالي دون ريفريش
-                }).catch(() => {
-                    alert("فشل ترقية الصلاحية.");
+                    playSFX('join'); alert("👑 تم منحك صلاحيات الأدمن السري ولائحة الحظر المتطورة!"); closeRedeemModal();
                 });
             } 
+            // 3. الكود الجديد المذهل: رتبة الامبراطور المطلق المجانية الفورية
+            else if (code === "HH00GG1000") {
+                if (confirm("🔥 كود مذهل مكتشف! هل تريد تفعيل رتبة [الامبراطور المطلق] الحمراء المتوهجة ذات المؤثرات البصرية الأسطورية مجاناً الآن؟")) {
+                    database.ref('users/' + currentUser.uid).update({
+                        unlockedEmperor: true,
+                        rank: "الامبراطور المطلق"
+                    }).then(() => {
+                        playSFX('join');
+                        alert("👑 تم تفعيل رتبة الامبراطور المطلق الأسطورية بنجاح! تفقد الشات لتراها تشتعل بالتأثيرات الحمراء!");
+                        closeRedeemModal();
+                    });
+                } else {
+                    database.ref('users/' + currentUser.uid + '/unlockedEmperor').set(true).then(() => {
+                        alert("📦 تم حفظ الرتبة بنجاح في خزنتك بالمتجر، يمكنك تفعيلها مجاناً في أي وقت!");
+                        closeRedeemModal();
+                    });
+                }
+            }
             else {
                 alert("❌ هذا الكود السري غير صحيح أو منتهي الصلاحية!");
             }
         }
 
-        // دالة طرد وحظر أي مستخدم نهائياً (متاحة للأدمن فقط)
+        // --- نظام الحظر المطور الصارم وتدابير المطور العياذ بها ---
         function banUserAccount(targetUid, targetUsername) {
             if (!window.currentUserIsAdmin) return;
-            if (confirm(`🚫 هل أنت متأكد تماماً من إعطاء باند وطرد [${targetUsername}] نهائياً من النظام؟`)) {
-                playSFX('game_end');
+            playSFX('click');
+            document.getElementById('ban-target-uid').value = targetUid;
+            document.getElementById('ban-target-name').value = targetUsername;
+            document.getElementById('ban-modal-user-info').innerText = `المستخدم المستهدف: ${targetUsername}`;
+            document.getElementById('admin-ban-modal').classList.add('active');
+        }
+
+        function closeBanModal() {
+            document.getElementById('admin-ban-modal').classList.remove('active');
+        }
+
+        function executeAdminBanAction() {
+            const targetUid = document.getElementById('ban-target-uid').value;
+            const targetName = document.getElementById('ban-target-name').value;
+            const actionType = document.getElementById('ban-duration-select').value;
+
+            if (!targetUid) return;
+            playSFX('game_end');
+
+            if (actionType === 'unban') {
+                database.ref('banned_users/' + targetUid).remove().then(() => {
+                    alert(`✅ تم إلغاء حظر الحساب [${targetName}] بنجاح وبإمكانهم العودة الآن!`);
+                    closeBanModal();
+                });
+            } else if (actionType === 'perm') {
                 database.ref('banned_users/' + targetUid).set({
-                    username: targetUsername,
+                    username: targetName,
                     bannedBy: currentUser.uid,
+                    type: 'perm',
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
-                    alert(`🔨 تم حظر ${targetUsername} بنجاح وطرده خارج السيرفر.`);
-                }).catch((err) => alert("حدث خطأ: " + err.message));
+                    alert(`🔨 تم حظر ${targetName} حظراً نهائياً وطرده بنجاح.`);
+                    closeBanModal();
+                });
+            } else {
+                const hours = parseInt(actionType);
+                const expiryTimestamp = Date.now() + (hours * 60 * 60 * 1000);
+                
+                database.ref('banned_users/' + targetUid).set({
+                    username: targetName,
+                    bannedBy: currentUser.uid,
+                    type: 'temp',
+                    expiresAt: expiryTimestamp,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    alert(`⏳ تم حظر ${targetName} مؤقتاً لمدة [${hours}] ساعة من السيرفر.`);
+                    closeBanModal();
+                });
             }
         }
 
-        // دالة مسح جميع الرسائل السابقة بالكامل من قاعدة البيانات (متاحة للأدمن فقط)
+        function manualUnbanPrompt() {
+            if (!window.currentUserIsAdmin) return;
+            const targetUid = prompt("قم بإدخال الـ ID (UID) الخاص بالمستند لفك حظره الفوري:");
+            if (!targetUid) return;
+            database.ref('banned_users/' + targetUid).remove().then(() => {
+                alert("✅ تم رفع فك الحظر عن الحساب المدخل بنجاح تام!");
+            }).catch(() => alert("فشل الإجراء، يرجى التحقق من القيمة."));
+        }
+
         function clearGlobalMessages() {
             if (!window.currentUserIsAdmin) return;
-            if (confirm("🚨 تحذير: هل تريد مسح جميع رسائل الدردشة العالمية بالكامل؟ (لا يمكن التراجع!)")) {
+            if (confirm("🚨 تحذير: هل تريد مسح جميع رسائل الدردشة العالمية بالكامل؟")) {
                 playSFX('game_end');
                 database.ref('rooms/global_chat').remove().then(() => {
                     alert("🧹 تم تفريغ ومسح الشات العام بنجاح!");
                     document.getElementById('messages-box').innerHTML = '';
-                }).catch((err) => alert("فشل المسح: " + err.message));
+                });
             }
         }
 
@@ -916,14 +1087,13 @@
 
             const rTag = getRankHTML(msg.rank || "صاعد");
             
-            // حقن زر حظر الأدمن بجانب رسائل الآخرين تلقائياً إذا كان المستخدم أدمن
             let banBtnHTML = "";
             if (window.currentUserIsAdmin && !isMe) {
-                banBtnHTML = `<button onclick="banUserAccount('${msg.userId}', '${msg.sender}')" style="background:none; border:none; color:var(--accent-neon); margin-right:8px; cursor:pointer;" title="حظر المستخدم"><i class="fas fa-gavel"></i></button>`;
+                banBtnHTML = `<button onclick="banUserAccount('${msg.userId}', '${msg.sender}')" style="background:none; border:none; color:var(--accent-neon); margin-right:8px; cursor:pointer;" title="لوحة العقوبات والحظر"><i class="fas fa-gavel"></i></button>`;
             }
 
             bubble.innerHTML = `
-                <div class="message-meta">${rTag} <span>${isMe ? 'أنت' : msg.sender}</span> ${banBtnHTML}</div>
+                <div class="message-meta">${rTag} <span>${isMe ? 'أنت' : msg.sender}</span> ${banBtnHTML} <small style="font-size:0.65rem; opacity:0.5; cursor:pointer;" onclick="navigator.clipboard.writeText('${msg.userId}'); alert('تم نسخ الـ ID للمستخدم!')">ID 📋</small></div>
                 <div class="message-content">${contentHTML}</div>
             `;
             box.appendChild(bubble); box.scrollTop = box.scrollHeight;
@@ -945,6 +1115,8 @@
                 body: text,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
+            
+            database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
             field.value = '';
         }
 
@@ -1006,9 +1178,11 @@
         }
 
         function switchRoom(id, element) {
-            playSFX('click'); activeRoom = id;
+            playSFX('click'); 
+            if (currentUser) database.ref(`typing_status/${activeRoom}/${currentUser.uid}`).remove();
+
+            activeRoom = id;
             
-            // حقن هيدر الشات مع تفعيل فوري لزر مسح الشات للأدمن في الغرفة العامة فقط
             let titleHTML = `<span><i class="fas fa-hashtag"></i> ساحة: ${id === 'global_chat' ? 'الدردشة العالمية الحرة' : id}</span>`;
             let clearBtnHTML = `<button id="admin-clear-chat" class="btn-small" onclick="clearGlobalMessages()" style="display: ${ (window.currentUserIsAdmin && id === 'global_chat') ? 'block' : 'none' }; background: #b3003b; border-color: var(--accent-neon); padding: 5px 12px; font-size: 0.8rem;">
                 <i class="fas fa-trash-alt"></i> مسح الشات العام
@@ -1020,7 +1194,10 @@
             if(element) element.classList.add('active');
             else { let el = document.getElementById(`room-item-${id}`); if(el) el.classList.add('active'); }
             
-            listenToRoomMessages(id); setupGameZone(id);
+            listenToRoomMessages(id); 
+            setupGameZone(id);
+            listenToTypingStatus(id);
+
             if(document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
         }
 
